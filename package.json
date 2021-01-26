@@ -4,6 +4,9 @@
     "node": ">=4"
   },
   "dependencies": {
+    "d3": "^5.7.0",
+    "d3-scale-cluster": "^2.0.1",
+    "d3v4": "^4.2.2",
     "jquery": "^3.4.1",
     "modernizr": "^3.7.1",
     "select2": "^4.0.13",

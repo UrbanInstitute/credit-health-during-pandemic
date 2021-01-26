@@ -1,7 +1,4 @@
 
-//Notes
-//There's a median credit score at the end of the US data, but really only available for Aug 2020. Was this supposed to go on the feature?
-
 var SELECTED_CAT = 'subp_credit_all',
   SELECTED_MONTH = '10/1/2020',
   SELECTED_COUNTY = '01001',
@@ -10,7 +7,6 @@ var SELECTED_CAT = 'subp_credit_all',
   DEMOS = ['all', 'coc', 'whi'],
   EXPANDED_DEMOS = ['all', 'whi', 'bla', 'lat', 'api', 'nat'],
   GEOG_LEVEL = 'nation'; //nation, state, county
-
 
 //is there a URL query? if so
 //-update those globals
@@ -391,7 +387,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           centered = centered !== d && d;
 
           var statePaths = usMap.selectAll('.state-outlines')
-            .classed('active', d => d === centered);
+            .classed('active', function(d){ d === centered});
 
           var countyPaths = usMap.selectAll('.counties')
             .classed('active', function(d){ return d === centered })
@@ -938,7 +934,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           centered = centered !== d && d;
 
           var statePaths = usMap.selectAll('.state-outlines')
-            .classed('active', d => d === centered);
+            .classed('active', function(d){ d === centered });
 
           var countyPaths = usMap.selectAll('.counties')
             .classed('active', function(d){ return d === centered })
