@@ -290,7 +290,7 @@ ul {
 
 #map-container {
   display: inline-block;
-  margin-right: 30px;
+  margin-right: 3%;
   width: 52%;
   // width: calc(60% - #{$timeline-width});
 
@@ -315,6 +315,7 @@ h3#measure-menu-title {
 
 #line-chart-container {
   display: inline-block;
+  float: right;
   width: 30%;
   // width: calc(35% - #{$timeline-width});
     h4.hed {
@@ -364,19 +365,25 @@ h3#measure-menu-title {
   stroke-width: 3px;
 }
 
-ul#legend {
-  list-style-type: none;
-  padding-left: 0;
-  padding-right: 10px;
-}
+// ul.us-legend {
+//   list-style-type: none;
+//   padding-left: 0;
+//   padding-right: 10px;
+// }
 
-ul#legend > li {
-  color: rgba(53,53,53,1);
-  display: inline;
-  opacity: 1;
-  padding-left: 5px;
-  padding-right: 10px;
-  margin-left: 15px;
+// ul.us-legend > li {
+//   color: rgba(53,53,53,1);
+//   display: inline;
+//   opacity: 1;
+//   padding-left: 5px;
+//   padding-right: 10px;
+//   margin-left: 15px;
+// }
+
+ul.us-legend {
+  li {
+    font-size: 14px;
+  }
 }
 
 #legend-container {
@@ -400,8 +407,8 @@ ul#readout {
 }
 
 ul.us-legend {
+  margin: 0;
   div {
-
     bottom: 5px;
     display: inline-block;
     margin-right: 4px;

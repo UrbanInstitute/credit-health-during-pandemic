@@ -31,7 +31,7 @@ var usMap = d3.select('svg.map')
               .attr('height', mapHeight + 'px')
               .attr('width', mapWidth + 'px');
 
-var lineMargin = {top: 15, right: 15, bottom: 15, left: 25}
+var lineMargin = {top: 5, right: 15, bottom: 15, left: 25}
 
 var lineChartWidth = parseInt(d3.select('#line-chart-container').style('width')) - lineMargin.left - lineMargin.right,
     lineChartRatio = .615,
@@ -897,7 +897,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       usLineChart();
       lilChartByMeasure();
       lilChartByRace();
-      $('#line-chart-container').css('margin-top', $('#map-header').height() + 15 + 'px')
+      $('#line-chart-container').css('margin-top', $('#map-header').outerHeight() + 10)
 
 
       d3.select(window).on('resize', resize);
@@ -979,7 +979,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         lineChartSvg.selectAll('.data-line')
           .attr('d', function(d){ return line(d.values)  })
 
-        $('#line-chart-container').css('margin-top', $('#map-header').height() + 15 + 'px')
+        $('#line-chart-container').css('margin-top', $('#map-header').outerHeight() + 10)
 
       }
 
