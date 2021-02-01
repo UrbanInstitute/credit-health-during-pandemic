@@ -4,9 +4,10 @@ var SELECTED_CAT = 'subp_credit_all',
   SELECTED_COUNTY = '01001',
   SELECTED_STATE = 'AL',
   SELECTED_COUNTY = '',
+  GEOG_LEVEL = 'nation', //nation, state, county
   DEMOS = ['all', 'coc', 'whi'],
   EXPANDED_DEMOS = ['all', 'whi', 'bla', 'lat', 'api', 'nat'],
-  GEOG_LEVEL = 'nation'; //nation, state, county
+  COUNTY_IDS;
 
 //is there a URL query? if so
 //-update those globals
@@ -31,7 +32,7 @@ var usMap = d3.select('svg.map')
               .attr('height', mapHeight + 'px')
               .attr('width', mapWidth + 'px');
 
-var lineMargin = {top: 5, right: 15, bottom: 15, left: 25}
+var lineMargin = {top: 5, right: 15, bottom: 10, left: 25}
 
 var lineChartWidth = parseInt(d3.select('#line-chart-container').style('width')) - lineMargin.left - lineMargin.right,
     lineChartRatio = .615,
@@ -107,6 +108,7 @@ d3.queue()
 function dataReady(error, countiesData, statesData, usData, dict, countyLookup, autocompleteSrc, us){
       var countyMap = d3.map(countyLookup, function(d) { return d.id });
       //add demo label to dict and filter
+      COUNTY_IDS = countyLookup.map(function(d){ return d.id })
       dict.forEach(function(measure){
         measure['demo'] = measure.value.substring(measure.value.length-3, measure.value.length)
       })
@@ -140,7 +142,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         }
       })
 
-
      $('.stateCountySearch').select2({
         data: autocompleteSrc,
         placeholder: 'Search for your state or county'
@@ -160,7 +161,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           usLineChart();
       })
 
-
       $('.month-choice').on({
         click: function(){
           $('#vertical-timeline > g.clicked').attr('class','unclicked')
@@ -168,6 +168,9 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           SELECTED_MONTH = $(this).attr('data-month')
           prepareDataAndUpdateMap();
           updateTitles();
+          d3.selectAll('.dot')
+            .attr('r', function(d){ return d.date === SELECTED_MONTH ? 4 : 2.5 })
+            .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
           },
           mouseenter: function(){
             $(this).siblings().css('visibility', 'visible')
@@ -188,6 +191,10 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           mouseleave: function(){
             $(this).children('text').css('visibility','hidden')
           }
+      })
+
+      $('#shareUrlBtn').on('click', function(evt){
+        getShareUrl()
       })
 
       function updateTitles(){
@@ -610,13 +617,10 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           .append('li')
           .attr('class', function(d){ return GEOG_LEVEL + d.key })
           .html(function(d){ return '<div class=\'legend-dash\'></div>' + labels[GEOG_LEVEL][d.key] })
-
       }
-
 
       function drawLine(data){
         updateLineLegend(data);
-        console.log(data)
 
         line
           .x(function(d){ return x(parseTime(d.date)) })
@@ -633,15 +637,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           .call(d3.axisBottom(x)
             // .tickFormat( function(d){ return IS_MOBILE ? '\'' + d3.timeFormat('%y')(d) : d3.timeFormat('%Y')(d) })
             );
-
-        lineChartSvg.append('line')
-            .attr('class', 'zero-line')
-            .attr('x1', lineMargin.left)
-            .attr('x2', lineChartWidth + lineMargin.left)
-            .attr('y1', lineChartHeight)
-            .attr('role','presentation')
-            .attr('y2', lineChartHeight);
-
 
           // yAxis.tickFormat(function(d){ return d + '%'});
 
@@ -667,6 +662,42 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
           linePath.exit().remove();
 
+          lineChartG.append('line')
+            .attr('class', 'zero-line')
+            .attr('x1', 0)
+            .attr('role','presentation')
+            .attr('x2', lineChartWidth)
+            .attr('y1', lineChartHeight - lineMargin.bottom)
+            .attr('y2', lineChartHeight - lineMargin.bottom);
+            
+          var dotData = []
+          for (var i = 0; i < data.length; i++){
+            for (var j = 0; j < data[i].values.length; j++){
+              var obj = {
+                'date': data[i].values[j].date,
+                'key': data[i].key,
+                'value': data[i].values[j].value
+              }
+              dotData.push(obj)
+            }
+          }
+
+        //add some circles, yo
+        var markers = lineChartG.selectAll('.dot')
+            .data(dotData)
+            .enter()
+            .append('circle')
+            .attr('class', 'dot')
+            .attr('r', function(d){ return d.date === SELECTED_MONTH ? 4 : 2.5 })
+            .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
+            .attr('stroke', function(d){
+              return colorScheme[GEOG_LEVEL][d.key]
+            })
+            .attr('stroke-width', 2)
+            .attr('cx', function(d){ 
+              
+              return x(parseTime(d.date)) })
+            .attr('cy', function(d){ return y(d.value)})
       }
 
       function lilChartByMeasure(){
@@ -755,7 +786,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
               return d3.format('1')(d) + '%';
             })
           )
-
 
         svg.selectAll('.line')
           .data(map)
@@ -962,7 +992,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
               return countyInterpolator;
             })
         }
-
 
         lineChartSvg
           .style('width', lineChartWidth + 'px')

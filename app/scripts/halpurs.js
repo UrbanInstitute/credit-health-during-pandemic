@@ -82,7 +82,7 @@ var stateNameLookup = {
 }
 
 function getQueryParam(param,fallback, validOpts) {
-
+// 'subp_credit_all', 'debt_in_collect_all','median_debt_in_collect_all','avg_cc_util_all','stud_loan_del_rate_all','cc_del_rate_all', 'auto_retail_loan_del_rate_all','mortgage_del_rate_all','afs_cred_all','del_afs_credit_rate_all','median_credit_score_all'
     param = param.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
     var regex = new RegExp('[\\?&]' + param + '=([^&#]*)');
     var results = regex.exec(location.search);
@@ -129,16 +129,11 @@ function getShareUrl(){
   //not the cleanest, since the default values are also included in the first few lines of main.js
   //(the calls to getQueryParam) but I don't mind if you don't
   var queryParams = [
-    ['geography','geography','national'],
-    ['chartType','chart-type','single-year-bar'],
-    ['year','year','2017'],
-    ['programLength','program-length','four'],
-    ['singleRace','single-race','dif_hispa'],
-    ['singleSector','single-sector','public-nonselective'],
-    ['state','state','Alabama'],
-    ['selectedSchool','selected-school',encodeURIComponent('Northern Virginia Community College')],
-    ['arrayRaces','array-race',Object.keys(translateRace)],
-    ['arraySectors','array-sectors',Object.keys(translate).slice(2)]//default val is for four year, so doesn't include the 2 two-year options
+    [SELECTED_CAT,'cat','subp_credit_all'],
+    [SELECTED_MONTH,'month','10/1/2020'],
+    [SELECTED_COUNTY, 'county', ''], //01001
+    [SELECTED_STATE, 'state', ''], //AL
+    [GEOG_LEVEL, 'geog','nation']
   ]
 
   var nonFallback = 0;
@@ -147,38 +142,20 @@ function getShareUrl(){
       param = queryParams[i][1],
       fallback = queryParams[i][2]
 
-    //special cases for the race and sector arrays
-    if(Array.isArray(fallback)){
-      //test if array matches default/fallback value. If it does, no need to change URL
-      if(higherEdSelections[key].length != fallback.length){
-
-          //if the first param added to querystring, add a "?" before param, otherwise add "&"
-          nonFallback += 1;
-          if(nonFallback == 1) shareURL += '?'
-          else shareURL += '&'
-
-          //add key/value pair to url. This is basically just a "reverse lookup" in the translate object
-          //(finding key by value instead of value by key), mapped onto the array of selected sectors
-          shareURL += param + '=' + higherEdSelections[key].map(function(val){
-            return Object.keys(translate).filter(function(k) { return translate[k] == val })[0];
-          }).join(',')
-
-      }
-    }else{
-      var val;
+      var val = key;
 
       if(val != fallback){
         //if the first param added to querystring, add a "?" before param, otherwise add "&"
         nonFallback += 1;
         if(nonFallback == 1) shareURL += '?'
         else shareURL += '&'
-
+          if (param === 'month'){ val = encodeURIComponent(val) }
         //add key/value pair to URL
         shareURL += param + '=' + val
       }
-    }
 
   }
+    debugger
 
   d3.select('#share-tooltip > input').attr('value', shareURL)
   d3.select('#share-tooltip').style('display','block')
