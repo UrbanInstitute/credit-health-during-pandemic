@@ -13,6 +13,22 @@ function capFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
+d3.selection.prototype.moveToFront = function() {
+  return this.each(function(){
+    this.parentNode.appendChild(this);
+  });
+};
+
+function formatScore(num){
+  if (SELECTED_CAT === 'median_credit_score_all'){
+    return num
+  } else if (SELECTED_CAT === 'median_debt_in_collect_all'){
+    return d3.format('$,')(num)
+  } else {
+    return num + '%'
+  }
+}
+
 var stateAbbrevs = [ 'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'US' ];
 
 var fipsNames = {'01':'AL','02':'AK','04':'AZ','05':'AR','06':'CA','08':'CO','09':'CT','10':'DE','11':'DC','12':'FL','13':'GA','66':'GU','15':'HI','16':'ID','17':'IL','18':'IN','19':'IA','20':'KS','21':'KY','22':'LA','23':'ME','24':'MD','25':'MA','26':'MI','27':'MN','28':'MS','29':'MO','30':'MT','31':'NE','32':'NV','33':'NH','34':'NJ','35':'NM','36':'NY','37':'NC','38':'ND','39':'OH','40':'OK','41':'OR','70':'Palau','42':'PA','72':'PR','44':'RI','45':'SC','46':'SD','47':'TN','48':'TX','49':'UT','50':'VT','51':'VA','78':'VI','53':'WA','54':'WV','55':'WI','56':'WY'}
@@ -82,23 +98,20 @@ var stateNameLookup = {
 }
 
 function getQueryParam(param,fallback, validOpts) {
+
 // 'subp_credit_all', 'debt_in_collect_all','median_debt_in_collect_all','avg_cc_util_all','stud_loan_del_rate_all','cc_del_rate_all', 'auto_retail_loan_del_rate_all','mortgage_del_rate_all','afs_cred_all','del_afs_credit_rate_all','median_credit_score_all'
     param = param.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
     var regex = new RegExp('[\\?&]' + param + '=([^&#]*)');
     var results = regex.exec(location.search);
-    if (results === null){
+    if ( results === null ){
       return fallback;
-    }else{
+    } else {
       var testResult = decodeURIComponent(results[1].replace(/\+/g, ' '))
       if(Array.isArray(fallback)){
         var selectionArray = testResult.split(',').filter(function(o){ return validOpts.indexOf(o) != -1 })
-        if (param === 'array-sectors'){
-          selectionArray = selectionArray.map(function(sector){
-            return translate[sector]
-          })
-        }
+
         return selectionArray
-      }else{
+      } else {
         // return (validOpts == 'all' || validOpts.indexOf(testResult) == -1) ? fallback : testResult;
         //if validOpts is 'all' or the test result isn't in valid Opts (like it's garbage) use the fallback, otherwise use the testresult
         if (validOpts === 'all'){
@@ -108,19 +121,12 @@ function getQueryParam(param,fallback, validOpts) {
         } else if (validOpts.indexOf(testResult) > -1){
           return testResult;
         }
-
-
       }
     }
+
 }
 
-// var SELECTED_CAT = "subp_credit_all",
-//   SELECTED_MONTH = "8/31/2020",
-//   SELECTED_COUNTY = "01001",
-//   SELECTED_STATE = 'AL',
-//   SELECTED_COUNTY = '',
-//   DEMOS = ["all", "coc", "whi"],
-//   GEOG_LEVEL = 'nation'; //nation, state, county
+
 // https://github.com/UrbanInstitute/college-racial-representation/blob/master/app/scripts/halpurs.js
 function getShareUrl(){
   //the base url (localhost in dev, staging/prop when live) including protocol (https://) and full path
@@ -132,7 +138,7 @@ function getShareUrl(){
     [SELECTED_CAT,'cat','subp_credit_all'],
     [SELECTED_MONTH,'month','10/1/2020'],
     [SELECTED_COUNTY, 'county', ''], //01001
-    [SELECTED_STATE, 'state', ''], //AL
+    [SELECTED_STATE, 'state', 'US'], //AL
     [GEOG_LEVEL, 'geog','nation']
   ]
 
@@ -153,9 +159,9 @@ function getShareUrl(){
         //add key/value pair to URL
         shareURL += param + '=' + val
       }
-
   }
-    debugger
+
+console.log(shareURL)
 
   d3.select('#share-tooltip > input').attr('value', shareURL)
   d3.select('#share-tooltip').style('display','block')
