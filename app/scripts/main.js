@@ -9,19 +9,12 @@ var SELECTED_CAT,
   EXPANDED_DEMOS = ['all', 'whi', 'bla', 'lat', 'api', 'nat'],
   COUNTY_IDS;
 
-//is there a URL query? if so
-//-update those globals
-//-either the titles and UI text will all be part of other fx or get their own
-//if there's not a search string
-if (location.search !== ''){
-  // getQueryParam()
-
-}
-
+var IS_MOBILE = $(window).width() < 800 ? true : false;
 
 var parseTime = d3.timeParse('%m/%d/%Y')
-                //force D3 to have the right labels on the axis
 
+                //force D3 to have the right labels on the axis
+                //heads up, change this when data updates
 var dataMonths = ['2/1/2020', '4/1/2020', '6/1/2020','8/1/2020','10/1/2020']
 var tickValues = dataMonths.map(function(d){ return parseTime(d) })
 
@@ -38,29 +31,37 @@ var usMap = d3.select('svg.map')
               .attr('height', mapHeight + 'px')
               .attr('width', mapWidth + 'px');
 
-var lineMargin = {top: 5, right: 15, bottom: 10, left: 25}
+var lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')),
+    lineChartRatio = .631,
+    lineChartDivHeight = lineChartDivWidth * lineChartRatio;
 
-var lineChartWidth = parseFloat(d3.select('#line-chart-container').style('width')) - lineMargin.left - lineMargin.right,
-    lineChartRatio = .615,
-    lineChartHeight = lineChartWidth * lineChartRatio - lineMargin.top - lineMargin.bottom //starting guess
+var lineMargin = {top: 30, right: 30, bottom: 30, left: 30},
+    lineChartWidth = lineChartDivWidth - lineMargin.left - lineMargin.right,
+    lineChartHeight = lineChartDivHeight - lineMargin.top - lineMargin.bottom //starting guess
 
-var lineChartSvg = d3.select('.state-lines')
-  .attr('height', lineChartHeight + lineMargin.top + lineMargin.bottom)
-  .attr('width', lineChartWidth + lineMargin.left + lineMargin.right)
+var lineChartSvg = d3.select('.state-lines').append('svg')
+    .attr('width', lineChartWidth + lineMargin.left + lineMargin.right)
+    .attr('height', lineChartHeight + lineMargin.top + lineMargin.bottom)
+.append('g')
+    .attr('transform', 'translate(' + lineMargin.left + ',' + lineMargin.top + ')')
 
-var lineChartAxis = lineChartSvg.append('g')
+var lineYAxis = lineChartSvg.append('g')
   .attr('class', 'grid')
-  .attr('transform', 'translate(' + lineMargin.left + ',' + lineMargin.top + ')')
 
-var lineChartG = lineChartSvg.append('g')
-  .attr('transform', 'translate(' + lineMargin.left + ',' + lineMargin.top + ')')
+var lineXAxis = lineChartSvg.append('g')
+      .attr('class','x-axis')
+      .attr('transform', 'translate(0,' + lineChartHeight + ')')
 
 var x = d3.scaleTime()
   .range([0, lineChartWidth])
-  .domain([parseTime('2/1/2020'), parseTime('10/1/2020')]) //TODO - hey dumbass, this is hard coded!
+  .domain([parseTime(dataMonths[0]), parseTime(dataMonths[dataMonths.length - 1])])
 
 var y = d3.scaleLinear()
-  .range([lineChartHeight - lineMargin.bottom, lineMargin.top])
+  .range([lineChartHeight, 0])
+
+var xAxis = d3.axisBottom(x)
+  .tickFormat( function(d){ return d3.timeFormat('%b')(d) } )
+  .tickValues(tickValues)
 
 var yAxis = d3.axisLeft(y)
   .tickSize(-lineChartWidth)
@@ -69,8 +70,56 @@ var yAxis = d3.axisLeft(y)
     return d3.format('1')(d) + '%';
   })
 
-
 var line = d3.line()
+var lilChartLine = d3.line()
+
+var lilChartDivWidth = parseInt(d3.select('#median-credit-and-race-chart').style('width')),
+    lilChartAspectRatio = .675,
+    lilChartDivHeight = lilChartDivWidth * lilChartAspectRatio;
+
+var lilChartMargin = {top: 30, right: 30, bottom: 30, left: 30},
+  lilChartWidth = lilChartDivWidth - lilChartMargin.left - lilChartMargin.right,
+  lilChartHeight = lilChartDivHeight - lilChartMargin.top - lilChartMargin.bottom;
+
+var lilChartSvg = d3.select('#median-credit-and-race-chart').append('svg')
+  .attr('width', lilChartWidth + lilChartMargin.left + lilChartMargin.right)
+  .attr('height', lilChartHeight + lilChartMargin.top + lilChartMargin.bottom)
+.append('g')
+  .attr('transform',
+        'translate(' + lilChartMargin.left + ',' + lilChartMargin.top + ')');
+
+var xLilChart = d3.scaleTime()
+  .range([0, lilChartWidth])
+  .domain([parseTime(dataMonths[0]), parseTime(dataMonths[dataMonths.length - 1])])
+
+var yLilChart = d3.scaleLinear()
+  .range([lilChartHeight, 0])
+  .domain([550, 800])//decided to set these based on subjective opinion of what makes chart easiest to read
+
+var lineLilChart = d3.line().x(function(d){ return xLilChart(parseTime(d.date)) })
+  .y(function(d){ return yLilChart(+d.value) })
+  .defined(function(d){
+    return !isNaN(d.value)
+  })
+
+
+var lilChartYAxisG = lilChartSvg.append('g')
+  .attr('class','grid')
+
+var lilChartXAxisG = lilChartSvg.append('g')
+      .attr('class','x-axis')
+      .attr('transform', 'translate(0,' + lilChartHeight + ')')
+
+var xAxisLilChart = d3.axisBottom(xLilChart)
+  .tickFormat( function(d){ return d3.timeFormat('%b')(d) } )
+  .tickValues(tickValues)
+
+var yAxisLilChart = d3.axisLeft(yLilChart)
+  // .tickSize(-lineChartWidth)
+  .ticks(4)
+
+
+
 
 var colorScheme = {
   'nation': {
@@ -99,6 +148,11 @@ var colorScheme = {
 //https://github.com/schnerd/d3-scale-cluster
 var clusterScale = d3.scaleCluster();
 
+//tooltip for line chart
+var stateLineTooltip = d3.select('body').append('div')
+    .attr('class', 'state-line-tooltip')
+    .style('opacity', 0);
+
 
 d3.queue()
   .defer(d3.csv, 'data/formatted/county.csv')
@@ -115,7 +169,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
   var countyList = countyLookup.map(function(d){ return d.id })
 
-   SELECTED_CAT = getQueryParam('cat', 'subp_credit_all', ["subp_credit_all", "debt_in_collect_all", "median_debt_in_collect_all", "avg_cc_util_all", "stud_loan_del_rate_all", "cc_del_rate_all", "auto_retail_loan_del_rate_all", "mortgage_del_rate_all", "afs_cred_all", "del_afs_credit_rate_all", " median_credit_score_all"]),
+   SELECTED_CAT = getQueryParam('cat', 'subp_credit_all', ['subp_credit_all', 'debt_in_collect_all', 'median_debt_in_collect_all', 'avg_cc_util_all', 'stud_loan_del_rate_all', 'cc_del_rate_all', 'auto_retail_loan_del_rate_all', 'mortgage_del_rate_all', 'afs_cred_all', 'del_afs_credit_rate_all', ' median_credit_score_all']),
     SELECTED_MONTH = getQueryParam('month','10/1/2020',['2/1/2020','4/1/2020','6/1/2020','8/1/2020','10/1/2020']),
     SELECTED_COUNTY = getQueryParam('county', '', countyList),
     SELECTED_STATE = getQueryParam('state', 'US', stateAbbrevs),
@@ -131,8 +185,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   var menuItems = dict.filter(function(measure){
     return measure['demo'] === 'all'
   })
-
-
 
   //UI STUFF
   d3.select('#dropdown').selectAll('option')
@@ -159,8 +211,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     }
   })
 
-  $("#dropdown").val(SELECTED_CAT);
-  $("#dropdown").selectmenu("refresh");
+  $('#dropdown').val(SELECTED_CAT);
+  $('#dropdown').selectmenu('refresh');
 
   $('.stateCountySearch').select2({
     data: autocompleteSrc,
@@ -169,7 +221,41 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
   $('.stateCountySearch').on('select2:select', function(evt){
     getPlaceFromTagLookup(evt);
+  })
 
+    $('.stateCountySearch').on('select2:unselect', function(evt){
+    var removed = evt.params.data.id;
+    //removing a county
+    if (removed.length > 2){
+      GEOG_LEVEL = 'state'
+      d3.selectAll('.counties').classed('selected', false)
+      stateLineChart();
+    } else {
+      //removing a state also removes a county and resets teh whole thing, just like zoombtn
+            projection.fitExtent([[0,0],[mapWidth,mapHeight]], featureCollection)
+               // resize the map
+      usMap.selectAll('.counties').attr('d', path);
+      usMap.selectAll('.state-outlines').attr('d', path);
+      //reset geographic stuff to default
+      GEOG_LEVEL = 'nation'
+      SELECTED_STATE = 'US'
+      SELECTED_COUNTY = ''
+      $('#readout > li.county > span.place').text('')
+      $('#readout > li.county > span.pct').text('')
+      $('#readout > li.state > span.place').text('')
+      $('#readout > li.state > span.pct').text('')
+      d3.selectAll('path.state-outlines').attr('stroke', '#FFFFFF').attr('stroke-width', 2)
+      d3.select('.counties.selected').classed('selected', false)
+      usLineChart();
+      updateTitles();
+
+      $('.stateCountySearch').empty().select2({
+          data: autocompleteSrc,
+          placeholder: 'Search for your state or county',
+          multiple: true,
+          maximumSelectionLength: 2
+      });
+    }
   })
 
   $('.zoom-btn-wrapper').on('click', function(d){
@@ -192,7 +278,9 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
       $('.stateCountySearch').empty().select2({
           data: autocompleteSrc,
-          placeholder: 'Search for your state or county'
+          placeholder: 'Search for your state or county',
+          multiple: true,
+          maximumSelectionLength: 2
       });
   })
 
@@ -207,16 +295,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       d3.selectAll('.dot')
         .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 } })
         .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
-      },
-      mouseenter: function(){
-        $(this).siblings().css('visibility', 'visible')
-        $(this).siblings('text').css('opacity', '0.5')
-      },
-      mouseleave: function(){
-        //only a g that's unclicked should go to hidden
-        $(this).siblings().css('visibility', 'hidden')
-        $(this).siblings('text').css('opacity', '1')
       }
+
   })
 
   $('#timeline-note-marker').on({
@@ -226,6 +306,21 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       mouseleave: function(){
         $(this).children('text').css('visibility','hidden')
       }
+  })
+
+  $('.see-more-btn').on('click', function(d){
+    var div = $(this).attr('data-cat');
+
+    if (d3.select(this).classed('see-less')){
+      $('#' + div).css('display', 'none')
+      $(this).removeClass('see-less')
+      $(this).html('MORE <span>+</span>')
+    } else {
+      $('#' + div).css('display', 'inline-block')
+          $(this).html('LESS <span>-</span>')
+    $(this).addClass('see-less')
+    }
+
   })
 
   $('#shareUrlBtn').on('click', function(evt){
@@ -348,43 +443,50 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     .attr('d', path)
     .attr('stroke', 'white')
     .on('click', getPlaceFromMap)
-    .on("mouseover", function(d){
-      if (GEOG_LEVEL === 'nation'){
-        var mousedState = fipsNames[d.id.substring(0,2)],
-        stateClass = mousedState.toLowerCase(),
-        stateOutline = d3.select('path.state-outlines.' + stateClass);
-
-        stateOutline.attr('stroke', COLORS['yellow'][1]).attr('stroke-width', 3)
-        stateOutline.moveToFront();
-
-        var stateAbbrev = fipsNames[d.id]
-        var data = statesData.filter(function(d){ return d.place === mousedState });
-
-        $('#readout > li.state > span.place').text(stateNameLookup[mousedState])
-        $('#readout > li.state > span.pct').text(formatScore(data[data.length - 1][SELECTED_CAT]) )
+    .on('mouseover', function(d){
+      var placeHasNoData = checkForData(d)
+      if ( placeHasNoData ){
+        d3.evt.preventDefault()
+        return
       } else {
-        var mousedCounty = d3.select(this),
-        mousedCountyId = d.id
+        if (GEOG_LEVEL === 'nation'){
+          var mousedState = fipsNames[d.id.substring(0,2)],
+          stateClass = mousedState.toLowerCase(),
+          stateOutline = d3.select('path.state-outlines.' + stateClass);
 
-        if (mousedCountyId.substring(0,2) !== nameFips[SELECTED_STATE] ){
-          return
+          stateOutline.attr('stroke', COLORS['yellow'][1]).attr('stroke-width', 3)
+          stateOutline.moveToFront();
+
+          var stateAbbrev = fipsNames[d.id]
+          var data = statesData.filter(function(d){ return d.place === mousedState });
+
+          $('#readout > li.state > span.place').text(stateNameLookup[mousedState])
+          $('#readout > li.state > span.pct').text(formatScore(data[data.length - 1][SELECTED_CAT]) )
         } else {
-          var placeName = countyMap.get(mousedCountyId).county + ' County',
-          score = countiesData.filter(function(d){
-            return d.date === SELECTED_MONTH
-          }).filter(function(d){
-              return d.place === mousedCountyId
-          })[0][SELECTED_CAT]
+          var mousedCounty = d3.select(this),
+          mousedCountyId = d.id
 
-          mousedCounty.attr('stroke', COLORS['yellow'][1]).attr('stroke-width', 3);
-          mousedCounty.moveToFront();
+          if (mousedCountyId.substring(0,2) !== nameFips[SELECTED_STATE] ){
+            return
+          } else {
+            var placeName = countyMap.get(mousedCountyId).county + ' County',
+            score = countiesData.filter(function(d){
+              return d.date === SELECTED_MONTH
+            }).filter(function(d){
+                return d.place === mousedCountyId
+            })[0][SELECTED_CAT]
 
-          $('#readout > li.county > span.place').text(placeName)
-          $('#readout > li.county > span.pct').text(formatScore(score))
+            mousedCounty.attr('stroke', COLORS['yellow'][1]).attr('stroke-width', 3);
+            mousedCounty.moveToFront();
+
+            $('#readout > li.county > span.place').text(placeName)
+            $('#readout > li.county > span.pct').text(formatScore(score))
+          }
         }
       }
+
     })
-    .on("mouseout", function(d){
+    .on('mouseout', function(d){
       if (GEOG_LEVEL === 'nation'){
         var mousedState = fipsNames[d.id.substring(0,2)],
         stateClass = mousedState.toLowerCase(),
@@ -422,11 +524,11 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     .selectAll('path')
     .data(topojson.feature(us, us.objects.states).features)
     .enter().append('path')
-    .attr("fill", "none")
-    .attr("stroke", "#FFFFFF")
-    .attr("class", function(d){ return 'state-outlines ' + classify(fipsNames[d.id])  })
-    .attr("stroke-width", 2)
-    .attr("d", path)
+    .attr('fill', 'none')
+    .attr('stroke', '#FFFFFF')
+    .attr('class', function(d){ return 'state-outlines ' + classify(fipsNames[d.id])  })
+    .attr('stroke-width', 2)
+    .attr('d', path)
 
   if (SELECTED_COUNTY != ''){
     d3.select('.counties.c' + SELECTED_COUNTY).classed('selected', true)
@@ -452,84 +554,124 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       .style('border-left', function(d){ return '20px solid' + clusterScale(d) })
   }
 
+  var tagScootch =
+  function(){
+    return $('ul.select2-selection__rendered > li:nth-child(1)').outerWidth() +
+    parseFloat($('ul.select2-selection__rendered > li:nth-child(2)').css('left')) +
+    20 //padding
+  }
+
   function getPlaceFromTagLookup(evt){
 
     var placeId = evt.params.data.id
     var placeName = evt.params.data.text
     var goToState = ''
 
-    // the object should have indicator of GEOG LEVEL
-    // Set the new GEOG_LEVEL
-    // call either state or county line chart
-    // figure out where to zoom, it will alwyas be to a state
-    // if the user put in a county, grab off the state fips
+    // input is county
     if ( placeId.length > 2 ){
       GEOG_LEVEL = 'county'
       SELECTED_COUNTY = placeId
       goToState = placeId.substring(0,2);
       SELECTED_STATE = fipsNames[goToState]
       countyLineChart();
-
+      $('.stateCountySearch').val([SELECTED_COUNTY, goToState]).trigger('change')
+      $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
+    //input is state
     } else {
       GEOG_LEVEL = 'state'
       SELECTED_STATE = fipsNames[placeId]
       goToState = placeId
       stateLineChart();
       filterSearchOptionsToState();
+      $('.stateCountySearch').val(goToState).trigger('change')
     }
-    d3.select('.counties.c' + SELECTED_COUNTY).classed('selected', true)
+    d3.selectAll('.counties').classed('selected', false)
+    d3.select('.counties.c' + SELECTED_COUNTY).classed('selected', true).moveToFront()
     updateTitles();
 
     moveMap(goToState)
   }
 
+  function checkForData(e){
+    var placeId = e.id,
+      stateFips = placeId.substring(0,2)
+
+    if ( GEOG_LEVEL === 'nation' ){
+      //true or false, there's no data for this state
+      return statesData.filter(function(d){ return d.place === fipsNames[stateFips] })[dataMonths.indexOf(SELECTED_MONTH)][SELECTED_CAT] === ''
+    } else {
+      return countiesData.filter(function(d){ return d.place === placeId })[dataMonths.indexOf(SELECTED_MONTH)][SELECTED_CAT] === ''
+    }
+  }
+
   function getPlaceFromMap(evt){
 
-    var stateFips = evt.id.substring(0,2)
-    if ( GEOG_LEVEL === 'nation' ){
-      GEOG_LEVEL = 'state'
-      $('.stateCountySearch').val(stateFips).trigger('change')
-      SELECTED_STATE = fipsNames[stateFips]
-      moveMap(stateFips);
-      stateLineChart();
-      filterSearchOptionsToState();
-    } else if ( GEOG_LEVEL === 'state' || GEOG_LEVEL === 'county' ){
-       //clicking on a different state from state GEOG_LEVEL
-      if (fipsNames[stateFips] !== SELECTED_STATE){
+    var placeHasNoData = checkForData(evt)
+    if ( placeHasNoData ){
+      d3.evt.preventDefault()
+      return
+    } else {
+      var stateFips = evt.id.substring(0,2)
+      if ( GEOG_LEVEL === 'nation' ){
+
         GEOG_LEVEL = 'state'
+        $('.stateCountySearch').val(stateFips).trigger('change')
         SELECTED_STATE = fipsNames[stateFips]
-        SELECTED_COUNTY = ''
-        $('#readout > li.county > span.place').text('')
-        $('#readout > li.county > span.pct').text('')
-        filterSearchOptionsToState();
         moveMap(stateFips);
         stateLineChart();
-      } else { //clicking twice on same state brings you to county level geo
-        GEOG_LEVEL = 'county'
-        SELECTED_COUNTY = evt.id
-        d3.selectAll('.counties').classed('selected', false)
-        var mousedCounty = d3.select(this);
-        mousedCounty.classed('selected', true)
-        mousedCounty.moveToFront();
-        countyLineChart();
-
+        filterSearchOptionsToState();
+        $('.stateCountySearch').val(stateFips).trigger('change')
+      } else if ( GEOG_LEVEL === 'state' || GEOG_LEVEL === 'county' ){
+         //clicking on a different state from state GEOG_LEVEL
+        if (fipsNames[stateFips] !== SELECTED_STATE){
+          GEOG_LEVEL = 'state'
+          SELECTED_STATE = fipsNames[stateFips]
+          SELECTED_COUNTY = ''
+          $('#readout > li.county > span.place').text('')
+          $('#readout > li.county > span.pct').text('')
+          filterSearchOptionsToState();
+          moveMap(stateFips);
+          stateLineChart();
+          $('.stateCountySearch').val(stateFips).trigger('change')
+        } else { //clicking twice on same state brings you to county level geo
+          GEOG_LEVEL = 'county'
+          SELECTED_COUNTY = evt.id
+          d3.selectAll('.counties').classed('selected', false)
+          var mousedCounty = d3.select(this);
+          mousedCounty.classed('selected', true)
+          mousedCounty.moveToFront();
+          countyLineChart();
+          $('.stateCountySearch').val([SELECTED_COUNTY, stateFips]).trigger('change')
+          $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
+        }
       }
-
-      $('.stateCountySearch').val(SELECTED_COUNTY).trigger('change')
+      updateTitles();
     }
-    updateTitles();
-
   }
 
   function filterSearchOptionsToState(){
+
     var stateFips = nameFips[SELECTED_STATE];
     var filteredOptions = autocompleteSrc.filter(function(d){
-                                                  //i.e., not the state itself
-      return d.id.substring(0,2) === stateFips && d.id !== stateFips
-    })
+        return d.id.substring(0,2) === stateFips
+      })
+    // var filteredOptions = []
+    // for ( var i = 0; i < autocompleteSrc.length; i++ ){
+    //   for ( var j = 0; j < countiesData.length; j++ ){
+    //     if ( autocompleteSrc[i].id === countiesData[j].place ){
+    //       if (countiesData[j].date === SELECTED_MONTH){
+    //         if (countiesData[j][SELECTED_CAT] !== "" && countiesData[j].place.substring(0,2) === stateFips){
+    //           filteredOptions.push(autocompleteSrc[i])
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
 
     $('.stateCountySearch').empty().select2({
-      data: filteredOptions
+      data: filteredOptions,
+      multiple: true,
+      maximumSelectionLength: 2
     })
   }
 
@@ -800,21 +942,24 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         return !isNaN(d.value)
       })
 
-    d3.select('.x-axis').remove();
+    // d3.select('.x-axis').remove();
 
-    lineChartSvg.append('g')
-      .attr('class','x-axis')
-      .attr('transform', 'translate(' + lineMargin.left + ',' + (lineChartHeight + lineMargin.top - lineMargin.bottom) + ')')
-      .call(d3.axisBottom(x)
-          .tickFormat( function(d){ return d3.timeFormat('%b')(d) } )
-          .tickValues(tickValues)
-        );
+    // lineChartSvg.append('g')
+    //   .attr('class','x-axis')
+    //   .attr('transform', 'translate(0,' + lineChartHeight + ')')
+    //   // .attr('transform', 'translate(' + lineMargin.left + ',' + (lineChartHeight + lineMargin.top - lineMargin.bottom) + ')')
+    //   .call(d3.axisBottom(x)
+    //       .tickFormat( function(d){ return d3.timeFormat('%b')(d) } )
+    //       .tickValues(tickValues)
+    //     );
 
       // yAxis.tickFormat(function(d){ return d + '%'});
 
-    lineChartAxis.call(yAxis);
+    lineYAxis.call(yAxis);
 
-    var linePath = lineChartG.selectAll('path')
+    lineXAxis.call(xAxis)
+
+    var linePath = lineChartSvg.selectAll('.data-line')
       .data(data, function(d){ return d.key })
 
       linePath.enter()
@@ -834,13 +979,13 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
       linePath.exit().remove();
 
-      lineChartG.append('line')
-        .attr('class', 'zero-line')
-        .attr('x1', 0)
-        .attr('role','presentation')
-        .attr('x2', lineChartWidth)
-        .attr('y1', lineChartHeight - lineMargin.bottom)
-        .attr('y2', lineChartHeight - lineMargin.bottom);
+      // lineChartSvg.append('line')
+      //   .attr('class', 'zero-line')
+      //   .attr('x1', 0)
+      //   .attr('role','presentation')
+      //   .attr('x2', lineChartWidth)
+      //   .attr('y1', lineChartHeight)
+      //   .attr('y2', lineChartHeight);
 
       var dotData = []
       for (var i = 0; i < data.length; i++){
@@ -854,8 +999,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         }
       }
 
-    //add some circles, yo
-    var markers = lineChartG.selectAll('.dot')
+    //add some circles
+    var markers = lineChartSvg.selectAll('.dot')
         .data(dotData)
 
       markers.enter()
@@ -879,6 +1024,19 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           } else {
            return y(d.value) }
         })
+//         .on('mouseover', function(d){
+//           stateLineTooltip.transition()
+//             .style('opacity', 1)
+// // http://bl.ocks.org/wdickerson/64535aff478e8a9fd9d9facccfef8929
+//           stateLineTooltip
+//             .html('hi')
+//             .style("left", (d3.event.pageX) + "px")
+//             .style("top", (d3.event.pageY) + "px");
+//         })
+//         .on('mouseout', function(d){
+//           stateLineTooltip.transition()
+//             .style('opacity', 0)
+//         })
 
       markers.transition()
         .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 }} )
@@ -899,129 +1057,10 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           } else {
            return y(d.value) }
         })
+
       markers.moveToFront();
 
       markers.exit().remove();
-  }
-
-  function lilChartByMeasure(){
-    var measureLookup = d3.nest().key(function(d){ return d.value }).map(dict)
-
-    var nonRateMeasures = [
-      'median_debt_in_collect_all',
-      'afs_cred_all',
-      'median_credit_score_all'
-    ];
-
-    var selectedMeasure = 'stud_loan_del_rate_all'
-                      //choosing the last one bc the later data has an extra measure in it
-    var measureNames = Object.keys(usData[usData.length - 1]).filter(function(d){
-                        return d.substring(d.length - 3, d.length) === 'all' && nonRateMeasures.indexOf(d) === -1
-                      })
-
-
-    var map = measureNames.map(function(measure){
-        return {'key': measure, 'values': []}
-    })
-
-    for ( var i = 0; i < measureNames.length; i++ ){
-      usData.forEach(function(monthData){
-        var obj = {
-          'date': monthData.date,
-          'value': +monthData[measureNames[i]]
-        }
-        map[i].values.push(obj)
-      })
-    }
-
-    var divWidth = parseInt(d3.select('#distress-eased').style('width')),
-        aspectRatio = .675,
-        divHeight = divWidth * aspectRatio;
-
-    var margin = {top: 30, right: 30, bottom: 30, left: 30},
-      width = divWidth - margin.left - margin.right,
-      height = divHeight - margin.top - margin.bottom;
-
-    var svg = d3.select('#distress-eased').append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-    .append('g')
-      .attr('transform',
-            'translate(' + margin.left + ',' + margin.top + ')');
-
-    var x = d3.scaleTime()
-      .range([0, width])
-      .domain([parseTime('2/1/2020'), parseTime('10/1/2020')])
-    svg.append('g')
-      .attr('transform', 'translate(0,' + height + ')')
-                .call(d3.axisBottom(x)
-          .tickFormat( function(d){ return d3.timeFormat('%b')(d) } )
-          .tickValues(tickValues)
-         )
-
-    var y = d3.scaleLinear()
-      .range([height, 0])
-
-    var domainInflater = 1.1
-    var min = d3.min(map[0].values, function(d){ return d.value }),
-      max = d3.max(map[0].values, function(d){ return d.value })
-
-    map.forEach(function(demo){
-      var newMin = d3.min(demo.values, function(date){ return date.value }),
-        newMax = d3.max(demo.values, function(date){ return date.value })
-      if ( newMin < min ) { min = newMin }
-      if ( newMax > max ) { max = newMax }
-    })
-
-    y.domain([0, max * domainInflater])
-
-    // var yAxis = d3.axisLeft(y)
-    //   .tickSize(-lineChartWidth)
-
-    var line = d3.line().x(function(d){ return x(parseTime(d.date)) })
-      .y(function(d){ return y(+d.value) })
-      .defined(function(d){
-        return !isNaN(d.value)
-      })
-
-    svg.append('g')
-      .call(d3.axisLeft(y)
-        .ticks(4)
-        .tickSize(0)
-        .tickFormat(function(d, i) {
-          return d3.format('1')(d) + '%';
-        })
-      )
-
-    svg.selectAll('.line')
-      .data(map)
-      .enter()
-      .append('path')
-        .attr('fill', 'none')
-        .attr('stroke', '#9D9D9D')
-        .attr('stroke-width', 1.5)
-        .attr('class', function(d){
-          return d.key === selectedMeasure ? 'selected lilLine ' + d.key : 'lilLine ' + d.key;
-        })
-        .attr('d', function(d){
-          return line(d.values)
-        })
-        .on('mouseover', function(d){
-
-          var text = measureLookup.get(d.key)[0].label
-          d3.selectAll('.lilLine').classed('selected', false)
-          d3.select(this).classed('selected', true)
-          d3.select('#distress-eased > span').text(text)
-        })
-
-      svg.append('line')
-        .attr('class', 'zero-line')
-        .attr('x1', 0)
-        .attr('x2', width)
-        .attr('y1', height)
-        .attr('role','presentation')
-        .attr('y2', height);
-
   }
 
   function lilChartByRace(){
@@ -1049,81 +1088,41 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       })
     }
 
-    var divWidth = parseInt(d3.select('#median-credit-and-race').style('width')),
-        aspectRatio = .675,
-        divHeight = divWidth * aspectRatio;
-
-    var margin = {top: 30, right: 30, bottom: 30, left: 30},
-      width = divWidth - margin.left - margin.right,
-      height = divHeight - margin.top - margin.bottom;
-
-    var svg = d3.select('#median-credit-and-race').append('svg')
-      .attr('width', width + margin.left + margin.right)
-      .attr('height', height + margin.top + margin.bottom)
-    .append('g')
-      .attr('transform',
-            'translate(' + margin.left + ',' + margin.top + ')');
-
-    var x = d3.scaleTime()
-      .range([0, width])
-      .domain([parseTime('2/1/2020'), parseTime('10/1/2020')])
-    svg.append('g')
-      .attr('transform', 'translate(0,' + height + ')')
-        .call(d3.axisBottom(x)
-          .tickFormat( function(d){ return d3.timeFormat('%b')(d) } )
-          .tickValues(tickValues)
-         )
-
-    var y = d3.scaleLinear()
-      .range([height, 0])
-
-    //decided to set these based on subjective opinion of what makes chart easiest to read
-    y.domain([550, 800])
-
-    // Allison's mocks have no grid lines here but I think ultimately you'll want them back
-    // var yAxis = d3.axisLeft(y)
-    //   .tickSize(-lineChartWidth)
-
-    var line = d3.line().x(function(d){ return x(parseTime(d.date)) })
-      .y(function(d){ return y(+d.value) })
+    lilChartLine
+      .x(function(d){ return xLilChart(parseTime(d.date)) })
+      .y(function(d){ return yLilChart(d.value) })
       .defined(function(d){
         return !isNaN(d.value)
       })
 
-    svg.append('g')
-      .call(d3.axisLeft(y)
-        .ticks(4)
-        .tickSize(0)
-        // .tickFormat(function(d, i) {
-        //   return d3.format('1')(d) + '%';
-        // })
-      )
+    lilChartYAxisG.call(yAxisLilChart)
+    lilChartXAxisG.call(xAxisLilChart)
 
-    svg.selectAll('.line')
+    lilChartSvg.selectAll('.line')
       .data(nested)
       .enter()
       .append('path')
         .attr('fill', 'none')
+        .classed('line', true)
         .attr('stroke', function(d){ return colorScheme['nation'][d.key]})
         .attr('stroke-width', 1.5)
         .attr('d', function(d){
-          return line(d.values)
+          return lilChartLine(d.values)
         })
 
-    svg.append('line')
-        .attr('class', 'zero-line')
-        .attr('x1', 0)
-        .attr('x2', width)
-        .attr('y1', height)
-        .attr('role','presentation')
-        .attr('y2', height);
-
+    // lilChartSvg.append('line')
+    //     .attr('class', 'zero-line')
+    //     .attr('x1', 0)
+    //     .attr('x2', lilChartWidth)
+    //     .attr('y1', lilChartHeight)
+    //     .attr('role','presentation')
+    //     .attr('y2', lilChartHeight);
   }
 
-
   //I'm the init
-  prepareDataAndUpdateMap();
-  lilChartByMeasure();
+  if (!IS_MOBILE){
+    prepareDataAndUpdateMap();
+  }
   lilChartByRace();
   if (GEOG_LEVEL === 'nation'){
     usLineChart();
@@ -1134,6 +1133,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   } else if (GEOG_LEVEL === 'county'){
     countyLineChart();
     updateTitles();
+
     $('.stateCountySearch').val(nameFips[SELECTED_STATE]).trigger('change')
     $('.stateCountySearch').val(SELECTED_COUNTY).trigger('change')
   }
@@ -1144,85 +1144,88 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   d3.select(window).on('resize', resize);
 
   function resize(){
+    IS_MOBILE = $(window).width() < 800 ? true : false;
 
-    mapWidth = parseFloat(d3.select('#map-container').style('width'));
-    mapWidth = mapWidth - margin.left - margin.right;
-    mapHeight = mapWidth * mapRatio;
-    //some examples:
-    // https://observablehq.com/@rdmurphy/responsive-maps-based-on-the-bounds-of-projected-geographi
-    // http://bl.ocks.org/chriscanipe/071984bcf482971a94900a01fdb988fa
-    // https://codepen.io/TiannanZ/pen/rrEKoB
+    if (!IS_MOBILE){
+      prepareDataAndUpdateMap();
+      mapWidth = parseFloat(d3.select('#map-container').style('width'));
+      mapWidth = mapWidth - margin.left - margin.right;
+      mapHeight = mapWidth * mapRatio;
+      //some examples:
+      // https://observablehq.com/@rdmurphy/responsive-maps-based-on-the-bounds-of-projected-geographi
+      // http://bl.ocks.org/chriscanipe/071984bcf482971a94900a01fdb988fa
+      // https://codepen.io/TiannanZ/pen/rrEKoB
 
-    // resize the map container
-    usMap
-      .style('width', mapWidth + 'px')
-      .style('height', mapHeight + 'px');
+      // resize the map container
+      usMap
+        .style('width', mapWidth + 'px')
+        .style('height', mapHeight + 'px');
 
-    if (GEOG_LEVEL === 'nation'){
-      projection.fitExtent([[0,0],[mapWidth,mapHeight]], featureCollection)
+      if (GEOG_LEVEL === 'nation'){
+        projection.fitExtent([[0,0],[mapWidth,mapHeight]], featureCollection)
 
-               // resize the map
-      usMap.selectAll('.counties').attr('d', path);
-      usMap.selectAll('.state-outlines').attr('d', path);
-    } else {
-      var d = topojson.feature(us, us.objects.states).features.filter(function(s){ return s.id == nameFips[SELECTED_STATE]} )[0]
+                 // resize the map
+        usMap.selectAll('.counties').attr('d', path);
+        usMap.selectAll('.state-outlines').attr('d', path);
+      } else {
+        var d = topojson.feature(us, us.objects.states).features.filter(function(s){ return s.id == nameFips[SELECTED_STATE]} )[0]
 
-      //possible alternate way to go: https://bl.ocks.org/veltman/77679636739ea2fc6f0be1b4473cf03a
-      centered = centered !== d && d;
+        //possible alternate way to go: https://bl.ocks.org/veltman/77679636739ea2fc6f0be1b4473cf03a
+        centered = centered !== d && d;
 
-      var statePaths = usMap.selectAll('.state-outlines')
-        .classed('active', function(d){ d === centered });
+        var statePaths = usMap.selectAll('.state-outlines')
+          .classed('active', function(d){ d === centered });
 
-      var countyPaths = usMap.selectAll('.counties')
-        .classed('active', function(d){ return d === centered })
+        var countyPaths = usMap.selectAll('.counties')
+          .classed('active', function(d){ return d === centered })
 
-      // Starting translate/scale
-      var t0 = projection.translate(),
-        s0 = projection.scale();
+        // Starting translate/scale
+        var t0 = projection.translate(),
+          s0 = projection.scale();
 
-      // Re-fit to destination
-      projection.fitSize([mapWidth, mapHeight], centered || d);
+        // Re-fit to destination
+        projection.fitSize([mapWidth, mapHeight], centered || d);
 
-      // Create interpolators
-      var interpolateTranslate = d3.interpolate(t0, projection.translate()),
-          interpolateScale = d3.interpolate(s0, projection.scale());
+        // Create interpolators
+        var interpolateTranslate = d3.interpolate(t0, projection.translate()),
+            interpolateScale = d3.interpolate(s0, projection.scale());
 
-      var countyInterpolator = function(t) {
-        projection.scale(interpolateScale(t))
-          .translate(interpolateTranslate(t));
-        countyPaths.attr('d', path);
-      };
+        var countyInterpolator = function(t) {
+          projection.scale(interpolateScale(t))
+            .translate(interpolateTranslate(t));
+          countyPaths.attr('d', path);
+        };
 
-      d3.transition()
-        .duration(0)
-        .tween('projection', function() {
-          return countyInterpolator;
-        })
+        d3.transition()
+          .duration(0)
+          .tween('projection', function() {
+            return countyInterpolator;
+          })
+      }
     }
 
-    lineChartWidth = parseFloat(d3.select('#line-chart-container').style('width')) - lineMargin.left - lineMargin.right
-    lineChartHeight = lineChartWidth * lineChartRatio - lineMargin.top - lineMargin.bottom
+
+    lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width'))
+    lineChartDivHeight = lineChartDivWidth * lineChartRatio
+    lineChartWidth = lineChartDivWidth - lineMargin.left - lineMargin.right
+    lineChartHeight = lineChartDivHeight - lineMargin.top - lineMargin.bottom
 
     lineChartSvg
-      .attr('width', lineChartWidth + 'px')
-      .attr('height', lineChartHeight + 'px');
+      .attr('width', lineChartWidth + lineMargin.left + lineMargin.right)
+      .attr('height', lineChartHeight + lineMargin.top + lineMargin.bottom);
 
-    x.range([lineMargin.left, lineChartWidth - lineMargin.right])
+    x.range([0, lineChartWidth])
 
-    y.range([lineChartHeight - lineMargin.bottom, lineMargin.top])
+    y.range([lineChartHeight, 0])
 
-    var line = d3.line().x(function(d){ return x(parseTime(d.date)) })
-      .y(function(d){ return y(+d.value) })
-      .defined(function(d){
-        return !isNaN(d.value)
-      })
+  //   var lineYAxis = lineChartSvg.append('g')
+  // .attr('class', 'grid')
 
-    lineChartSvg.select('.x-axis')
-      .attr('transform', 'translate(' + lineMargin.left + ',' + (lineChartHeight - lineMargin.bottom) + ')')
-      .call(d3.axisBottom(x)
-         .tickFormat( function(d){ return d3.timeFormat('%b')(d) } )
-         .tickValues(tickValues)
-        );
+    lineXAxis.attr('transform', 'translate(0,' + lineChartHeight + ')')
+
+    lineYAxis.call(yAxis);
+
+    lineXAxis.call(xAxis)
 
     lineChartSvg.selectAll('.data-line')
       .attr('d', function(d){ return line(d.values)  })
@@ -1248,7 +1251,27 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
            return y(d.value) }
         })
 
+    lilChartDivWidth = parseInt(d3.select('#median-credit-and-race-chart').style('width'))
+    lilChartDivHeight = lilChartDivWidth * lilChartAspectRatio
+    lilChartWidth = lilChartDivWidth - lilChartMargin.left - lilChartMargin.right
+    lilChartHeight = lilChartDivHeight - lilChartMargin.top - lilChartMargin.bottom
+
+   lilChartSvg
+    .attr('width', lilChartWidth + lilChartMargin.left + lilChartMargin.right)
+    .attr('height', lilChartHeight + lilChartMargin.top + lilChartMargin.bottom)
+
+
+    xLilChart.range([0, lilChartWidth])
+    yLilChart.range([lilChartHeight, 0])
+
+    lilChartYAxisG.call(yAxisLilChart)
+    lilChartXAxisG.call(xAxisLilChart)
+
+    lilChartSvg.selectAll('.line')
+      .attr('d', function(d){ return lilChartLine(d.values) })
+
     $('#line-chart-container').css('margin-top', $('#map-header').outerHeight() + 10)
+    $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
 
   }
 
