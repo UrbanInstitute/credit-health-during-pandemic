@@ -166,11 +166,7 @@ ul {
     }
 }
 
-#credit-health-hed {
-  display: block;
-  margin: 130px auto 20px auto;
-  max-width: 80%;
-}
+
 
 .button {
   background-color: $cyan;
@@ -185,40 +181,6 @@ ul {
 .button:hover {
   background-color: #12719E;
 }
-
-.clear {
-  clear: both;
-}
-
-.date-line {
-  color: #696969;
-  font-size: 14px;
-  margin: 0;
-  padding-bottom: 20px;
-  text-align: center;
-}
-
-.text-wrapper {
-  padding-top: 56px;
-  margin: 0 auto 100px auto;
-  max-width: 1150px;
-  width: 80%;
-}
-
-.small-well {
-  margin: 0 auto;
-  // max-width: 650px; <- I think this is the template small well
-  max-width: 760px;
-
-   p:first-of-type {
-    padding-top: 15px;
-   }
-}
-
-.ui-icon {
-  display: none !important;
-}
-
 
 .conclusion {
   h4 {
@@ -253,6 +215,52 @@ ul {
   }
 
 }
+
+.clear {
+  clear: both;
+}
+
+#credit-health-hed {
+  display: block;
+  margin: 130px auto 20px auto;
+  max-width: 80%;
+}
+
+.date-line {
+  color: #696969;
+  font-size: 14px;
+  margin: 0;
+  padding-bottom: 20px;
+  text-align: center;
+}
+
+.mobile-only {
+  display: none;
+}
+
+.small-well {
+  margin: 0 auto;
+  // max-width: 650px; <- I think this is the template small well
+  max-width: 760px;
+
+   p:first-of-type {
+    padding-top: 15px;
+   }
+}
+
+.text-wrapper {
+  padding-top: 56px;
+  margin: 0 auto 100px auto;
+  max-width: 1150px;
+  width: 80%;
+}
+
+.ui-icon {
+  display: none !important;
+}
+
+
+
 
 
 
@@ -795,25 +803,82 @@ div.state-line-tooltip {
 
 
 @media (max-width: 800px) {
-  #svg-container {
-    display: none;
+
+  p {
+    font-size: 18px;
+    line-height: 1.75;
+    margin: 30px 0;
   }
 
-  #map-container {
-    display: none;
+  h3#measure-menu-title {
+    font-size: 16px;
+    font-weight: 400;
+    margin: 0;
+    text-align: left;
   }
 
-  #line-chart-container {
-    display: block;
-    float: none;
-    margin: 0 auto;
-    width: 80%;
+  #dropdown-button {
+    background-color: #FFFFFF;
+    width: 100%;
   }
 
   .inline-chart.right {
     float: none;
     margin-left: 0;
     width: 100%;
+  }
+
+  #line-chart-container {
+    display: block;
+    float: none;
+    margin: 0 auto;
+    width: 85%;
+  }
+
+  #main-viz-container {
+    padding: 0;
+  }
+
+  #map-container {
+    display: none;
+  }
+
+  .menu {
+    border-top: 1px solid #D2D2D2;
+    padding: 1px 7.5%;
+  }
+
+  #main-viz-container > div:nth-child(3) {
+    border-bottom: 1px solid #D2D2D2;
+    margin-bottom: 40px;
+  }
+
+  .mobile-only {
+    display: block;
+  }
+
+  .sentence-wrapper {
+    display: none;
+  }
+
+  #svg-container {
+    display: none;
+  }
+
+  .text-wrapper {
+    margin-bottom: 40px;
+    width: 85%;
+  }
+
+  .ui-selectmenu-button.ui-button {
+    width: 100%;
+  }
+
+  .ui-selectmenu-text {
+    font-size: 16px;
+    font-weight: 400;
+    left: 0;
+    margin-top: 12px;
   }
 }
 

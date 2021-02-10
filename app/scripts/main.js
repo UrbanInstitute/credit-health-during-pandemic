@@ -211,6 +211,33 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     }
   })
 
+  if (IS_MOBILE){
+    makeMobileMenu()
+  }
+
+  function makeMobileMenu(){
+    var states = autocompleteSrc.filter(function(d){
+      return d.id.length < 3
+    })
+
+    states.unshift({id: 'US', text: 'United States'})
+
+    d3.select('#mobile-state-dropdown').selectAll('option')
+      .data(states)
+      .enter()
+      .append('option')
+      .text(function(d){ return d.text })
+      .attr('value', function(d){ return d.id })
+
+    $('#mobile-state-dropdown').selectmenu({
+
+    })
+
+    $('#mobile-county-dropdown').selectmenu({
+
+    })
+  }
+
   $('#dropdown').val(SELECTED_CAT);
   $('#dropdown').selectmenu('refresh');
 
@@ -1202,6 +1229,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
             return countyInterpolator;
           })
       }
+    } else {
+      makeMobileMenu()
     }
 
 
