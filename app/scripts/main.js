@@ -67,17 +67,23 @@ var yAxis = d3.axisLeft(y)
   .tickSize(-lineChartWidth)
   .ticks(4)
   .tickFormat(function(d, i) {
-    return d3.format('1')(d) + '%';
+    if (SELECTED_CAT === 'median_credit_score_all'){
+      return d
+    } else if (SELECTED_CAT === 'median_debt_in_collect_all'){
+      return '$' + d
+    } else {
+      return d3.format('.1f')(d) + '%';
+    }
   })
 
 var line = d3.line()
 var lilChartLine = d3.line()
 
 var lilChartDivWidth = parseInt(d3.select('#median-credit-and-race-chart').style('width')),
-    lilChartAspectRatio = .675,
+    lilChartAspectRatio = .7,
     lilChartDivHeight = lilChartDivWidth * lilChartAspectRatio;
 
-var lilChartMargin = {top: 30, right: 30, bottom: 30, left: 30},
+var lilChartMargin = {top: 0, right: 30, bottom: 30, left: 30},
   lilChartWidth = lilChartDivWidth - lilChartMargin.left - lilChartMargin.right,
   lilChartHeight = lilChartDivHeight - lilChartMargin.top - lilChartMargin.bottom;
 
@@ -94,7 +100,7 @@ var xLilChart = d3.scaleTime()
 
 var yLilChart = d3.scaleLinear()
   .range([lilChartHeight, 0])
-  .domain([550, 800])//decided to set these based on subjective opinion of what makes chart easiest to read
+  .domain([300, 850])//researchers say 300 to 850, but it's really hard to see what you're looking at then
 
 var lineLilChart = d3.line().x(function(d){ return xLilChart(parseTime(d.date)) })
   .y(function(d){ return yLilChart(+d.value) })
@@ -115,7 +121,7 @@ var xAxisLilChart = d3.axisBottom(xLilChart)
   .tickValues(tickValues)
 
 var yAxisLilChart = d3.axisLeft(yLilChart)
-  // .tickSize(-lineChartWidth)
+  .tickSize(-lilChartWidth)
   .ticks(4)
 
 
@@ -364,7 +370,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     countyName = '',
     countyScore = '';
 
-    var usNote = '<b>Note:</b> AI/AN stands for American Indian and Alaska Native, Hispanic stands for Hispanic and Latinx, and AAPI stands for Asian American Pacific Islander Communities.',
+    var usNote = '<b>Note:</b> NA = Native American; AAPI = Asian American and Pacific Islander.',
     stateAndCountyNote = '<b>Note:</b> Detailed race data is not available for communities that are too small.'
 
     if ( GEOG_LEVEL === 'state' ){
@@ -376,7 +382,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
       countyName = ''
       countyScore = ''
-            $('#readout > li.state > span.place').text(placeName)
+      $('#readout > li.state > span.place').text(placeName)
       $('#readout > li.state > span.pct').text(formatScore(stateScore))
 
     } else if ( GEOG_LEVEL === 'county' ){
@@ -400,8 +406,17 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       $('#readout > li.county > span.pct').text(formatScore(countyScore))
 
     } else {
-      placeName = 'United States'
+      placeName = 'the United States'
       note = usNote
+      var usScore = usData[dataMonths.indexOf(SELECTED_MONTH)][SELECTED_CAT]
+      if (SELECTED_CAT === 'median_credit_score_all'){
+        usScore = usScore
+      } else if (SELECTED_CAT === 'median_debt_in_collect_all'){
+        usScore = '$' + usScore
+      } else {
+        usScore = d3.format('.1f')(usScore) + '%';
+      }
+      $('#readout > li.nation > span.pct').text(usScore)
     }
 
     $('.title-measure-name').text(capFirstLetter(shortMeasureName))
@@ -496,7 +511,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           if (mousedCountyId.substring(0,2) !== nameFips[SELECTED_STATE] ){
             return
           } else {
-            var placeName = countyMap.get(mousedCountyId).county + ' County',
+            var countyLabel = SELECTED_STATE === 'LA' ? ' Parish' : ' County',
+            placeName = countyMap.get(mousedCountyId).county + countyLabel,
             score = countiesData.filter(function(d){
               return d.date === SELECTED_MONTH
             }).filter(function(d){
@@ -530,7 +546,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         mousedCounty.attr('stroke', '#FFFFFF').attr('stroke-width', 1)
 
         if (SELECTED_COUNTY !== ''){
-          var placeName = countyMap.get(SELECTED_COUNTY).county + ' County',
+          var countyLabel = SELECTED_STATE === 'LA' ? ' Parish' : ' County',
+          placeName = countyMap.get(SELECTED_COUNTY).county + countyLabel,
           score = countiesData.filter(function(d){
             return d.date === SELECTED_MONTH
           }).filter(function(d){
@@ -577,7 +594,17 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       .data(breaks)
       .enter()
       .append('li')
-      .text(function(d){ return d })
+      .text(function(d){
+        // return d3.format(".1f")(d)
+        if (SELECTED_CAT === 'median_credit_score_all'){
+        return d = d
+      } else if (SELECTED_CAT === 'median_debt_in_collect_all'){
+        return d = '$' + d
+      } else {
+        return d = d3.format('.1f')(d) + '%';
+      }
+      $('#readout > li.nation > span.pct').text(d)
+      })
       .style('border-left', function(d){ return '20px solid' + clusterScale(d) })
   }
 
@@ -950,7 +977,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       }
     }
 
-    d3.select('#line-legend').selectAll('li').remove()
+  d3.select('#line-legend').selectAll('li').remove()
     d3.select('#line-legend').selectAll('li')
       .data(data)
       .enter()
@@ -962,6 +989,22 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   function drawLine(data){
     updateLineLegend(data);
 
+
+           var dotData = []
+      for (var i = 0; i < data.length; i++){
+        for (var j = 0; j < data[i].values.length; j++){
+          var obj = {
+            'date': data[i].values[j].date,
+            'key': data[i].key,
+            'value': data[i].values[j].value
+          }
+          dotData.push(obj)
+        }
+      }
+
+
+
+
     line
       .x(function(d){ return x(parseTime(d.date)) })
       .y(function(d){ return y(d.value) })
@@ -969,22 +1012,42 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         return !isNaN(d.value)
       })
 
-    // d3.select('.x-axis').remove();
-
-    // lineChartSvg.append('g')
-    //   .attr('class','x-axis')
-    //   .attr('transform', 'translate(0,' + lineChartHeight + ')')
-    //   // .attr('transform', 'translate(' + lineMargin.left + ',' + (lineChartHeight + lineMargin.top - lineMargin.bottom) + ')')
-    //   .call(d3.axisBottom(x)
-    //       .tickFormat( function(d){ return d3.timeFormat('%b')(d) } )
-    //       .tickValues(tickValues)
-    //     );
-
       // yAxis.tickFormat(function(d){ return d + '%'});
 
     lineYAxis.call(yAxis);
 
     lineXAxis.call(xAxis)
+
+
+
+    // lineXAxis.selectAll('.tick')._groups[0].forEach(function(tick){
+    //   var mouseoverData = d3.nest().key(function(d){ return d.date }).entries(dotData),
+    //   thisMonth = mouseoverData[dataMonths.indexOf(SELECTED_MONTH)].values
+
+    //   if ( d3.select(tick).data() === parseTime(SELECTED_MONTH) ){
+    //     var html = "<tr><td>United States</td> <td>" + thisMonth[0].value + "</td><tr><td>AAPI</td> <td>" + thisMonth[1].value + "</td></tr><tr><td>Black</td> <td>" + thisMonth[2].value + "</td></tr>"
+    //           var div = d3.select("body").append("table")
+    //       .attr("class", "tooltip")
+    //       .style("opacity", 0);
+    //     d3.select(tick).on("mouseover", function(d) {
+
+    //       console.log('hi')
+    //     //on mouse hover show the tooltip
+    //           div.transition()
+    //               .duration(200)
+    //               .style("opacity", .9);
+    //           div.html(html)
+    //               .style("left", (d3.event.pageX) + "px")
+    //               .style("top", (d3.event.pageY - 28) + "px");
+    //           })
+    //       .on("mouseout", function(d) {
+    //         //on mouse out hide the tooltip
+    //           div.transition()
+    //               .duration(500)
+    //               .style("opacity", 0);
+    //       });
+    //     }
+    // })
 
     var linePath = lineChartSvg.selectAll('.data-line')
       .data(data, function(d){ return d.key })
@@ -1005,26 +1068,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         .attr('stroke', function(d){ return colorScheme[GEOG_LEVEL][d.key] })
 
       linePath.exit().remove();
-
-      // lineChartSvg.append('line')
-      //   .attr('class', 'zero-line')
-      //   .attr('x1', 0)
-      //   .attr('role','presentation')
-      //   .attr('x2', lineChartWidth)
-      //   .attr('y1', lineChartHeight)
-      //   .attr('y2', lineChartHeight);
-
-      var dotData = []
-      for (var i = 0; i < data.length; i++){
-        for (var j = 0; j < data[i].values.length; j++){
-          var obj = {
-            'date': data[i].values[j].date,
-            'key': data[i].key,
-            'value': data[i].values[j].value
-          }
-          dotData.push(obj)
-        }
-      }
 
     //add some circles
     var markers = lineChartSvg.selectAll('.dot')
@@ -1051,19 +1094,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           } else {
            return y(d.value) }
         })
-//         .on('mouseover', function(d){
-//           stateLineTooltip.transition()
-//             .style('opacity', 1)
-// // http://bl.ocks.org/wdickerson/64535aff478e8a9fd9d9facccfef8929
-//           stateLineTooltip
-//             .html('hi')
-//             .style("left", (d3.event.pageX) + "px")
-//             .style("top", (d3.event.pageY) + "px");
-//         })
-//         .on('mouseout', function(d){
-//           stateLineTooltip.transition()
-//             .style('opacity', 0)
-//         })
 
       markers.transition()
         .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 }} )
@@ -1088,6 +1118,34 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       markers.moveToFront();
 
       markers.exit().remove();
+
+
+
+    // var clickCatcher = lineChartSvg.selectAll('.click-catcher')
+    //   .data(mouseoverData)
+
+    // clickCatcher.enter()
+    //   .append('rect')
+    //   .classed('click-catcher', true)
+    //   .attr('x', function(d){ return x(parseTime(d.key)) })
+    //   .attr('y', lineChartHeight)
+    //   .attr('height', lineMargin.bottom)
+
+
+      // .on('mousemove', function(d){
+      //     var html
+      //     //TODO make templates for US view and county/state view
+      //     stateLineTooltip
+      //       .style("left", (d3.event.pageX) + "px")
+      //       .style("top", (d3.event.pageY) + "px")
+      //       .html('hi')
+      //     stateLineTooltip.transition()
+      //       .style('opacity', 1)
+      //   })
+      //   .on('mouseout', function(d){
+      //     stateLineTooltip.transition()
+      //       .style('opacity', 0)
+      //   })
   }
 
   function lilChartByRace(){
@@ -1136,14 +1194,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         .attr('d', function(d){
           return lilChartLine(d.values)
         })
-
-    // lilChartSvg.append('line')
-    //     .attr('class', 'zero-line')
-    //     .attr('x1', 0)
-    //     .attr('x2', lilChartWidth)
-    //     .attr('y1', lilChartHeight)
-    //     .attr('role','presentation')
-    //     .attr('y2', lilChartHeight);
   }
 
   //I'm the init

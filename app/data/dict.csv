@@ -1,11 +1,18 @@
 label,value
-"Share with Subprime Credit Score, All",subp_credit_all
-"Share with Subprime Credit Score, Communities of Color",subp_credit_coc
-"Share with Subprime Credit Score, Majority Asian and Pacific Islander Communitie",subp_credit_api
-"Share with Subprime Credit Score, Majority Black Communities",subp_credit_bla
-"Share with Subprime Credit Score, Majority Hispanic/Latinx Communities",subp_credit_lat
-"Share with Subprime Credit Score, Majority Native American and Alaskan Native Co",subp_credit_nat
-"Share with Subprime Credit Score, Majority White Communities",subp_credit_whi
+"Share with a Subprime Credit Score, All",subp_credit_all
+"Share with a Subprime Credit Score, Communities of Color",subp_credit_coc
+"Share with a Subprime Credit Score, Majority Asian and Pacific Islander Communitie",subp_credit_api
+"Share with a Subprime Credit Score, Majority Black Communities",subp_credit_bla
+"Share with a Subprime Credit Score, Majority Hispanic/Latinx Communities",subp_credit_lat
+"Share with a Subprime Credit Score, Majority Native American and Alaskan Native Co",subp_credit_nat
+"Share with a Subprime Credit Score, Majority White Communities",subp_credit_whi
+"Median Credit Score, All",median_credit_score_all
+"Median Credit Score, Communities of Color",median_credit_score_coc
+"Median Credit Score, Majority American Indian and Alaskan Native Communities",median_credit_score_nat
+"Median Credit Score, Majority Asian and Pacific Islander Communities",median_credit_score_api
+"Median Credit Score, Majority Black Communities",median_credit_score_bla
+"Median Credit Score, Majority Hispanic/Latinx Communities",median_credit_score_lat
+"Median Credit Score, Majority White Communities",median_credit_score_whi
 "Share with Any Debt in Collections, All",debt_in_collect_all
 "Share with Any Debt in Collections, Communities of Color",debt_in_collect_coc
 "Share with Any Debt in Collections, Majority American Indian and Alaskan Native ",debt_in_collect_nat
@@ -27,52 +34,45 @@ label,value
 "Average Credit Card Utilization, Majority Black Communities",avg_cc_util_bla
 "Average Credit Card Utilization, Majority Hispanic/Latinx Communities",avg_cc_util_lat
 "Average Credit Card Utilization, Majority White Communities",avg_cc_util_whi
-"Student Loan Delinquency Rate (60+), All",stud_loan_del_rate_all
-"Student Loan Delinquency Rate (60+), Communities of Color",stud_loan_del_rate_coc
-"Student Loan Delinquency Rate (60+), Majority American Indian and Alaskan Native",stud_loan_del_rate_nat
-"Student Loan Delinquency Rate (60+), Majority Asian and Pacific Islander Communi",stud_loan_del_rate_api
-"Student Loan Delinquency Rate (60+), Majority Black Communities",stud_loan_del_rate_bla
-"Student Loan Delinquency Rate (60+), Majority Hispanic/Latinx Communities",stud_loan_del_rate_lat
-"Student Loan Delinquency Rate (60+), Majority White Communities",stud_loan_del_rate_whi
-"Credit Card Delinquency Rate (30+), All",cc_del_rate_all
-"Credit Card Delinquency Rate (30+), Communities of Color",cc_del_rate_coc
-"Credit Card Delinquency Rate (30+), Majority American Indian and Alaskan Native",cc_del_rate_nat
-"Credit Card Delinquency Rate (30+), Majority Asian and Pacific Islander Communit",cc_del_rate_api
-"Credit Card Delinquency Rate (30+), Majority Black Communities",cc_del_rate_bla
-"Credit Card Delinquency Rate (30+), Majority Hispanic/Latinx Communities",cc_del_rate_lat
-"Credit Card Delinquency Rate (30+), Majority White Communities",cc_del_rate_whi
-"Auto/Retail Loan Delinquency Rate (60+), All",auto_retail_loan_del_rate_all
-"Auto/Retail Loan Delinquency Rate (60+), Communities of Color",auto_retail_loan_del_rate_coc
-"Auto/Retail Loan Delinquency Rate (60+), Majority American Indian and Alaskan Na",auto_retail_loan_del_rate_nat
-"Auto/Retail Loan Delinquency Rate (60+), Majority Asian and Pacific Islander Com",auto_retail_loan_del_rate_api
-"Auto/Retail Loan Delinquency Rate (60+), Majority Black Communities",auto_retail_loan_del_rate_bla
-"Auto/Retail Loan Delinquency Rate (60+), Majority Hispanic/Latinx Communities",auto_retail_loan_del_rate_lat
-"Auto/Retail Loan Delinquency Rate (60+), Majority White Communities",auto_retail_loan_del_rate_whi
-"Mortgage Delinquency Rate (30+), All",mortgage_del_rate_all
-"Mortgage Delinquency Rate (30+), Communities of Color",mortgage_del_rate_coc
-"Mortgage Delinquency Rate (30+), Majority American Indian and Alaskan Native Com",mortgage_del_rate_nat
-"Mortgage Delinquency Rate (30+), Majority Asian and Pacific Islander Communities",mortgage_del_rate_api
-"Mortgage Delinquency Rate (30+), Majority Black Communities",mortgage_del_rate_bla
-"Mortgage Delinquency Rate (30+), Majority Hispanic/Latinx Communities",mortgage_del_rate_lat
-"Mortgage Delinquency Rate (30+), Majority White Communities",mortgage_del_rate_whi
-"Share with AFS Credit, All",afs_cred_all
-"Share with AFS Credit, Communities of Color",afs_cred_coc
-"Share with AFS Credit, Majority Aaian and Pacific Islander Communities",afs_cred_api
-"Share with AFS Credit, Majority American Indian and Alaskan Native Communities",afs_cred_nat
-"Share with AFS Credit, Majority Black Communities",afs_cred_bla
-"Share with AFS Credit, Majority Hispanic/Latinx Communities",afs_cred_lat
-"Share with AFS Credit, Majority White Communities",afs_cred_whi
-"AFS Credit Delinquency Rate (30+), All",del_afs_credit_rate_all
-"AFS Credit Delinquency Rate (30+), Communities of Color",del_afs_credit_rate_coc
-"AFS Credit Delinquency Rate (30+), Majority American Indian and Alaskan Native Communities",del_afs_credit_rate_nat
-"AFS Credit Delinquency Rate (30+), Majority Asian and Pacific Islander Communities",del_afs_credit_rate_api
-"AFS Credit Delinquency Rate (30+), Majority Black Communities",del_afs_credit_rate_bla
-"AFS Credit Delinquency Rate (30+), Majority Hispanic/Latinx Communities",del_afs_credit_rate_lat
-"AFS Credit Delinquency Rate (30+), Majority White Communities",del_afs_credit_rate_whi
-"Median Credit Score, All",median_credit_score_all
-"Median Credit Score, Communities of Color",median_credit_score_coc
-"Median Credit Score, Majority American Indian and Alaskan Native Communities",median_credit_score_nat
-"Median Credit Score, Majority Asian and Pacific Islander Communities",median_credit_score_api
-"Median Credit Score, Majority Black Communities",median_credit_score_bla
-"Median Credit Score, Majority Hispanic/Latinx Communities",median_credit_score_lat
-"Median Credit Score, Majority White Communities",median_credit_score_whi
+"Student Loan Delinquency Rate (60+ days), All",stud_loan_del_rate_all
+"Student Loan Delinquency Rate (60+ days), Communities of Color",stud_loan_del_rate_coc
+"Student Loan Delinquency Rate (60+ days), Majority American Indian and Alaskan Native",stud_loan_del_rate_nat
+"Student Loan Delinquency Rate (60+ days), Majority Asian and Pacific Islander Communi",stud_loan_del_rate_api
+"Student Loan Delinquency Rate (60+ days), Majority Black Communities",stud_loan_del_rate_bla
+"Student Loan Delinquency Rate (60+ days), Majority Hispanic/Latinx Communities",stud_loan_del_rate_lat
+"Student Loan Delinquency Rate (60+ days), Majority White Communities",stud_loan_del_rate_whi
+"Credit Card Delinquency Rate (30+ days), All",cc_del_rate_all
+"Credit Card Delinquency Rate (30+ days), Communities of Color",cc_del_rate_coc
+"Credit Card Delinquency Rate (30+ days), Majority American Indian and Alaskan Native",cc_del_rate_nat
+"Credit Card Delinquency Rate (30+ days), Majority Asian and Pacific Islander Communit",cc_del_rate_api
+"Credit Card Delinquency Rate (30+ days), Majority Black Communities",cc_del_rate_bla
+"Credit Card Delinquency Rate (30+ days), Majority Hispanic/Latinx Communities",cc_del_rate_lat
+"Credit Card Delinquency Rate (30+ days), Majority White Communities",cc_del_rate_whi
+"Auto/Retail Loan Delinquency Rate (60+ days), All",auto_retail_loan_del_rate_all
+"Auto/Retail Loan Delinquency Rate (60+ days), Communities of Color",auto_retail_loan_del_rate_coc
+"Auto/Retail Loan Delinquency Rate (60+ days), Majority American Indian and Alaskan Na",auto_retail_loan_del_rate_nat
+"Auto/Retail Loan Delinquency Rate (60+ days), Majority Asian and Pacific Islander Com",auto_retail_loan_del_rate_api
+"Auto/Retail Loan Delinquency Rate (60+ days), Majority Black Communities",auto_retail_loan_del_rate_bla
+"Auto/Retail Loan Delinquency Rate (60+ days), Majority Hispanic/Latinx Communities",auto_retail_loan_del_rate_lat
+"Auto/Retail Loan Delinquency Rate (60+ days), Majority White Communities",auto_retail_loan_del_rate_whi
+"Mortgage Delinquency Rate (30+ days), All",mortgage_del_rate_all
+"Mortgage Delinquency Rate (30+ days), Communities of Color",mortgage_del_rate_coc
+"Mortgage Delinquency Rate (30+ days), Majority American Indian and Alaskan Native Com",mortgage_del_rate_nat
+"Mortgage Delinquency Rate (30+ days), Majority Asian and Pacific Islander Communities",mortgage_del_rate_api
+"Mortgage Delinquency Rate (30+ days), Majority Black Communities",mortgage_del_rate_bla
+"Mortgage Delinquency Rate (30+ days), Majority Hispanic/Latinx Communities",mortgage_del_rate_lat
+"Mortgage Delinquency Rate (30+ days), Majority White Communities",mortgage_del_rate_whi
+"Share with Nonbank Credit, All",afs_cred_all
+"Share with Nonbank Credit, Communities of Color",afs_cred_coc
+"Share with Nonbank Credit, Majority Aaian and Pacific Islander Communities",afs_cred_api
+"Share with Nonbank Credit, Majority American Indian and Alaskan Native Communities",afs_cred_nat
+"Share with Nonbank Credit, Majority Black Communities",afs_cred_bla
+"Share with Nonbank Credit, Majority Hispanic/Latinx Communities",afs_cred_lat
+"Share with Nonbank Credit, Majority White Communities",afs_cred_whi
+"Nonbank Credit Delinquency Rate (30+ days), All",del_afs_credit_rate_all
+"Nonbank Credit Delinquency Rate (30+ days), Communities of Color",del_afs_credit_rate_coc
+"Nonbank Credit Delinquency Rate (30+ days), Majority American Indian and Alaskan Native Communities",del_afs_credit_rate_nat
+"Nonbank Credit Delinquency Rate (30+ days), Majority Asian and Pacific Islander Communities",del_afs_credit_rate_api
+"Nonbank Credit Delinquency Rate (30+ days), Majority Black Communities",del_afs_credit_rate_bla
+"Nonbank Credit Delinquency Rate (30+ days), Majority Hispanic/Latinx Communities",del_afs_credit_rate_lat
+"Nonbank Credit Delinquency Rate (30+ days), Majority White Communities",del_afs_credit_rate_whi
