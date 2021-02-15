@@ -215,7 +215,9 @@ ul {
 }
 
 .clear {
-  clear: both;
+   content: "";
+    display: block;
+    clear: both;
 }
 
 #credit-health-hed {
@@ -305,7 +307,13 @@ g.grid > g > line {
 }
 
 .tick {
+  cursor: pointer;
   font-family: "Lato", sans-serif;
+  font-weight: 400;
+}
+
+.tick.selected {
+  font-weight: 700;
 }
 
 .hed {
@@ -324,6 +332,7 @@ svg > g > g.grid > g:nth-child(2) > line {
 .chart-note {
   font-size: 14px;
   line-height: 1.3;
+  margin-bottom: 30px;
   margin-top: 5px;
 }
 
@@ -563,11 +572,13 @@ ul.us-legend {
 
 #svg-container {
   display: inline-block;
+  margin-right: 2%;
+  margin-bottom: -100%;
   overflow: hidden;
   padding-bottom: 100%;
   position: relative;
   vertical-align: top;
-  width: 14%;
+  width: 12%;
 }
 
 #vertical-timeline {
@@ -580,9 +591,13 @@ ul.us-legend {
   .st3{fill:#9D9D9D;}
   .dot-hilite {
     fill:#1696D2;
-    fill-opacity:0;
+    // fill-opacity:0;
     // visibility: hidden;
   }
+
+  .timeline-marker-dot{fill:#9D9D9D;}
+  .dot-hilite{fill:#1696D2;fill-opacity:0.4;}
+  .inner-dot{fill:#1696D2;}
 
   g {
     cursor: pointer;
@@ -593,24 +608,35 @@ ul.us-legend {
     // visibility: visible !important;
   }
 
+  .clicked > text {
+    font-weight: 700;
+  }
+
   .unclicked > .dot-hilite  {
     fill-opacity: 0;
     // visibility: hidden;
   }
 
-  .clicked > .timeline-month {
+  .moused > .dot-hilite {
+    fill-opacity: 0.4;
+  }
+
+  .moused > .month-label {
     fill: $black;
     font-weight: 700;
   }
 
-  .unclicked > .timeline-month {
-    fill: $gray-7;
+  .month-label{
+        fill: $gray-7;
     font-weight: 400;
+    font-size:18px;
   }
 
-  circle.dot-hilite:hover {
-    fill-opacity: 0.4;
+  .clicked > .month-label {
+    fill: $black;
+    font-weight: 700;
   }
+
 
   .timeline-month {
     font-size: 18px;
@@ -618,11 +644,80 @@ ul.us-legend {
     // visibility: hidden;
   }
 
-  #timeline-note-marker > text {
-    color: #696969;
-    font-size: 14px;
-    visibility: hidden;
-  }
+}
+
+.chart-tooltip {
+  background-color: #FFFFFF;
+  border: 1px solid #D2D2D2;
+  opacity: 0;
+  padding: 10px;
+  pointer-events: none;
+  position: absolute;
+  width: 200px;
+}
+
+.chart-tooltip:after, .chart-tooltip:before {
+  top: 100%;
+  left: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.chart-tooltip:after {
+  border-color: rgba(255, 255, 255, 0);
+  border-top-color: #ffffff;
+  border-width: 20px;
+  margin-left: -20px;
+}
+.chart-tooltip:before {
+  border-color: rgba(210, 210, 210, 0);
+  border-top-color: #d2d2d2;
+  border-width: 21px;
+  margin-left: -21px;
+}
+
+.foot-share {
+  display: inline-block;
+    float: right;
+    width: 30%;
+}
+
+.timeline-tooltip {
+  background-color: #FFFFFF;
+  border: 1px solid #D2D2D2;
+  opacity: 0;
+  padding: 10px;
+  pointer-events: none;
+  position: absolute;
+  width: 200px;
+}
+// ever helpful: https://cssarrowplease.com/;
+.timeline-tooltip:after, .timeline-tooltip:before {
+  right: 100%;
+  top: 50%;
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  pointer-events: none;
+}
+
+.timeline-tooltip:after {
+  border-color: rgba(255, 255, 255, 0);
+  border-right-color: #ffffff;
+  border-width: 20px;
+  margin-top: -20px;
+}
+.timeline-tooltip:before {
+  border-color: rgba(210, 210, 210, 0);
+  border-right-color: #d2d2d2;
+  border-width: 21px;
+  margin-top: -21px;
 }
 
 .zoom-btn-wrapper {
@@ -714,49 +809,6 @@ ul li.select2-results__option {
 }
 
 // TOOLTIPS
-// .line-tooltip-wrapper {
-//   position: relative;
-// }
-
-// #us-line-tooltip {
-//   background: #ffffff;
-//   border: 1px solid #d2d2d2;
-//   position: absolute;
-// }
-
-// #state-line-tooltip {
-//   display: none;
-//   position: relative;
-// }
-
-// #county-line-tooltip {
-//   display: none;
-//   position: relative;
-// }
-
-div.tooltip {
-  position: absolute;
-  text-align: center;
-  width: 60px;
-  height: 28px;
-  padding: 2px;
-  font: 12px sans-serif;
-  background: lightsteelblue;
-  border: 0px;
-  border-radius: 8px;
-  pointer-events: none;
-}
-
-div.state-line-tooltip {
-  position: absolute;
-  width: 100px;
-  height: 200px;
-  padding: 2px;
-  font-size: 12px;
-  background: #FFFFFF;
-  border: 1px solid #D2D2D2;
-  pointer-events: none;
-}
 
 
 .share-wrapper {
@@ -836,6 +888,10 @@ div.state-line-tooltip {
 }
 
 
+#mobile-nation-scoreboard, #mobile-state-county-scoreboard {
+  display: none;
+}
+
 @media (max-width: 800px) {
 
   p {
@@ -866,7 +922,23 @@ div.state-line-tooltip {
     display: block;
     float: none;
     margin: 0 auto;
-    width: 85%;
+    width: 100%;
+
+      h4.hed {
+        margin: 0 auto;
+        width: 85%;
+      }
+
+      ul#line-legend {
+        margin-left: 7.5%;
+      }
+
+      .state-lines {
+        margin-left: 7.5%;
+        margin-bottom: 10px;
+      }
+
+
   }
 
   #main-viz-container {
@@ -875,6 +947,38 @@ div.state-line-tooltip {
 
   #map-container {
     display: none;
+  }
+
+  #mobile-nation-scoreboard {
+    display: block;
+  }
+
+  #mobile-nation-scoreboard, #mobile-state-county-scoreboard {
+    border-top: 1px solid #D2D2D2;
+    border-bottom: 1px solid #D2D2D2;
+    padding-bottom: 15px;
+      table {
+        border-collapse: separate;
+        border-spacing: 0px 1px;
+        font-size: 14px;
+        margin: 0 auto;
+        table-layout: auto;
+        width: 85%;
+      }
+
+    .cl2 {
+      padding-left: 12px;
+    }
+
+    .selected-month {
+      display: inline-block;
+      font-size: 16px;
+      font-weight: 700;
+      margin-left: 7.5%;
+      margin-top: 15px;
+      margin-bottom: 5px;
+    }
+
   }
 
   .menu {
@@ -891,12 +995,32 @@ div.state-line-tooltip {
     display: block;
   }
 
+  .mobile-wrapper {
+    margin: 0 auto;
+    width: 85%;
+  }
+
+  .mobile-wrapper.chart-note {
+    margin-top: 30px;
+  }
+
+
+  #shareUrlBtn {
+    display: inline-block;
+    margin-left: 7.5%;
+    margin-top: 30px;
+  }
+
   .sentence-wrapper {
     display: none;
   }
 
   #svg-container {
     display: none;
+  }
+
+  #main-viz-container > div.text-wrapper {
+    padding-top: 15px;
   }
 
   .text-wrapper {

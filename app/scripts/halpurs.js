@@ -19,15 +19,7 @@ d3.selection.prototype.moveToFront = function() {
   });
 };
 
-function formatScore(num){
-  if (SELECTED_CAT === 'median_credit_score_all'){
-    return num
-  } else if (SELECTED_CAT === 'median_debt_in_collect_all'){
-    return d3.format('$,')(num)
-  } else {
-    return num + '%'
-  }
-}
+
 
 var stateAbbrevs = [ 'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'US' ];
 
