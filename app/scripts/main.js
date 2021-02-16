@@ -24,7 +24,7 @@ function formatScore(num){
   } else if (SELECTED_CAT === 'median_debt_in_collect_all'){
     return d3.format('$,')(num)
   } else {
-    return d3.format('.1f')(num)
+    return d3.format('.1f')(num) + '%'
   }
 }
 
@@ -41,11 +41,13 @@ var usMap = d3.select('svg.map')
               .attr('height', mapHeight + 'px')
               .attr('width', mapWidth + 'px');
 
-var lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')),
+var mobileShrinkAmt = IS_MOBILE ? 40 : 0
+
+var lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')) - mobileShrinkAmt,
     lineChartRatio = .631,
     lineChartDivHeight = lineChartDivWidth * lineChartRatio;
 
-var lineMargin = {top: 30, right: 30, bottom: 30, left: 30},
+var lineMargin = {top: 0, right: 15, bottom: 33, left: 45},
     lineChartWidth = lineChartDivWidth - lineMargin.left - lineMargin.right,
     lineChartHeight = lineChartDivHeight - lineMargin.top - lineMargin.bottom //starting guess
 
@@ -60,7 +62,7 @@ var lineYAxis = lineChartSvg.append('g')
 
 var lineXAxis = lineChartSvg.append('g')
       .attr('class','x-axis')
-      .attr('transform', 'translate(0,' + lineChartHeight + ')')
+      .attr('transform', 'translate(0,' + (lineChartHeight + 3) + ')')
 
 var x = d3.scaleTime()
   .range([0, lineChartWidth])
@@ -94,7 +96,7 @@ var lilChartDivWidth = parseInt(d3.select('#median-credit-and-race-chart').style
     lilChartAspectRatio = .7,
     lilChartDivHeight = lilChartDivWidth * lilChartAspectRatio;
 
-var lilChartMargin = {top: 0, right: 30, bottom: 30, left: 30},
+var lilChartMargin = {top: 0, right: 15, bottom: 30, left: 35},
   lilChartWidth = lilChartDivWidth - lilChartMargin.left - lilChartMargin.right,
   lilChartHeight = lilChartDivHeight - lilChartMargin.top - lilChartMargin.bottom;
 
@@ -179,7 +181,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   var countyList = countyLookup.map(function(d){ return d.id })
 
    SELECTED_CAT = getQueryParam('cat', 'subp_credit_all', ['subp_credit_all', 'debt_in_collect_all', 'median_debt_in_collect_all', 'avg_cc_util_all', 'stud_loan_del_rate_all', 'cc_del_rate_all', 'auto_retail_loan_del_rate_all', 'mortgage_del_rate_all', 'afs_cred_all', 'del_afs_credit_rate_all', ' median_credit_score_all']),
-    SELECTED_MONTH = getQueryParam('month','10/1/2020',['2/1/2020','4/1/2020','6/1/2020','8/1/2020','10/1/2020']),
+    SELECTED_MONTH = getQueryParam('month','2/1/2020',['2/1/2020','4/1/2020','6/1/2020','8/1/2020','10/1/2020']),
     SELECTED_COUNTY = getQueryParam('county', '', countyList),
     SELECTED_STATE = getQueryParam('state', 'US', stateAbbrevs),
     GEOG_LEVEL = getQueryParam('geog', 'nation', ['nation', 'state', 'county'])
@@ -200,16 +202,33 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     .data(menuItems)
     .enter()
     .append('option')
-    .text(function(d){ return d.label.substring(0,d.label.length - 5).toLowerCase() })
+    .text(function(d){
+      var text
+      if (IS_MOBILE){
+        text = d.label.substring(0,d.label.length - 5).replace('afs', 'AFS')
+      } else {
+        text = d.label.substring(0,d.label.length - 5).toLowerCase().replace('afs', 'AFS')
+      }
+      return text
+    })
     .attr('value', function(d){ return d.value })
 
 
   $('#dropdown').selectmenu({
     change: function (event, data){
       SELECTED_CAT = this.value
-      d3.selectAll('.dek').text(dict.filter(function(d){ return d.value === SELECTED_CAT })[0].label.split(',')[0])
+      var text = dict.filter(function(d){ return d.value === SELECTED_CAT })[0].label.split(',')[0]
+      d3.selectAll('.dek').text(text)
       prepareDataAndUpdateMap();
       updateTitles();
+      //change width of dropdown to fit new text
+      if (!IS_MOBILE){
+        $('#text-measurer').text(text)
+        var textWidth = $('#text-measurer').width()
+        $('.ui-selectmenu-text').css('width', textWidth + 5 + 'px')
+        $('#dropdown-button').css('width', textWidth + 50 + 'px')
+      }
+
       if ( GEOG_LEVEL === 'nation' ){
         usLineChart();
       } else if ( GEOG_LEVEL === 'state' ){
@@ -239,12 +258,34 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       .attr('value', function(d){ return d.id })
 
     $('#mobile-state-dropdown').selectmenu({
-
+      change: function(evt,data){
+        getPlaceFromTagLookup(evt);
+        makeCountyMenu();
+      }
     })
 
     $('#mobile-county-dropdown').selectmenu({
-
+      change: function(evt,data){
+        getPlaceFromTagLookup(evt);
+      }
     })
+
+    function makeCountyMenu(){
+      var counties = countiesData.filter(function(d){ return d.date === SELECTED_MONTH && !isNaN(+d['subp_credit_coc']) && d.place.substring(0,2) === nameFips[SELECTED_STATE] })
+      var stateFips = $('#mobile-state-dropdown').val();
+
+      d3.select('#mobile-county-dropdown').selectAll('option').remove();
+
+      d3.select('#mobile-county-dropdown').selectAll('option')
+        .data(counties)
+        .enter()
+        .append('option')
+        .text(function(d){ return countyMap.get(d.place).county })
+        .attr('value', function(d){ return d.place })
+      $('#mobile-county-dropdown').selectmenu('refresh')
+    }
+
+
   }
 
   $('#dropdown').val(SELECTED_CAT);
@@ -259,7 +300,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     getPlaceFromTagLookup(evt);
   })
 
-    $('.stateCountySearch').on('select2:unselect', function(evt){
+  $('.stateCountySearch').on('select2:unselect', function(evt){
     var removed = evt.params.data.id;
     //removing a county
     if (removed.length > 2){
@@ -407,7 +448,7 @@ var PREVIOUS_SELECTED_MONTH
   //this is for text that's changed by a click not a mouseover
   function updateTitles(){
     var longMeasureName = dict.filter(function(measure){ return measure.value === SELECTED_CAT })[0].label,
-    shortMeasureName = longMeasureName.substring(0,longMeasureName.length - 5).toLowerCase(),
+    shortMeasureName = longMeasureName.substring(0,longMeasureName.length - 5).toLowerCase().replace('afs', 'AFS'),
     monthYear = d3.timeFormat('%B %Y')(parseTime(SELECTED_MONTH)),
     placeName ='',
     note = '',
@@ -415,7 +456,7 @@ var PREVIOUS_SELECTED_MONTH
     countyName = '',
     countyScore = '';
 
-    var usNote = '<b>Note:</b> NA = Native American; AAPI = Asian American and Pacific Islander.',
+    var usNote = '<b>Source:</b> Tabulations of Urban Institute credit bureau data.<br><b>Notes:</b> Detailed race data is not available for communities that are too small. NA = Native American; AAPI = Asian American and Pacific Islander.',
     stateAndCountyNote = '<b>Note:</b> Detailed race data is not available for communities that are too small.'
 
     if ( GEOG_LEVEL === 'state' ){
@@ -468,7 +509,7 @@ var PREVIOUS_SELECTED_MONTH
     $('.title-measure-name').text(capFirstLetter(shortMeasureName))
     $('.map-title-date').text(monthYear)
     $('.line-title-name').text(placeName)
-    $('.chart-note').html(note)
+    $('#line-chart-container > p.chart-note').html(note)
 
   }
 
@@ -534,7 +575,7 @@ var PREVIOUS_SELECTED_MONTH
     .on('mouseover', function(d){
       var placeHasNoData = checkForData(d)
       if ( placeHasNoData ){
-        d3.evt.preventDefault()
+        // d3.evt.preventDefault()
         return
       } else {
         if (GEOG_LEVEL === 'nation'){
@@ -662,34 +703,54 @@ var PREVIOUS_SELECTED_MONTH
   }
 
   function getPlaceFromTagLookup(evt){
-
-    var placeId = evt.params.data.id
-    var placeName = evt.params.data.text
-    var goToState = ''
-
-    // input is county
-    if ( placeId.length > 2 ){
-      GEOG_LEVEL = 'county'
-      SELECTED_COUNTY = placeId
-      goToState = placeId.substring(0,2);
-      SELECTED_STATE = fipsNames[goToState]
-      countyLineChart();
-      $('.stateCountySearch').val([SELECTED_COUNTY, goToState]).trigger('change')
-      $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
-    //input is state
+    var placeId,
+      placeName,
+      goToState = '';
+    if (IS_MOBILE){
+      var theMenuThatSentMe = $(evt.delegateTarget).attr('id')
+      theMenuThatSentMe = theMenuThatSentMe.substring(0, theMenuThatSentMe.length-5)
+      placeId = $('#' + theMenuThatSentMe).val()
+      placeName = $('#' + theMenuThatSentMe).find(':selected').text();
     } else {
-      GEOG_LEVEL = 'state'
-      SELECTED_STATE = fipsNames[placeId]
-      goToState = placeId
-      stateLineChart();
-      filterSearchOptionsToState();
-      $('.stateCountySearch').val(goToState).trigger('change')
+      var placeId = evt.params.data.id
+      var placeName = evt.params.data.text
     }
-    d3.selectAll('.counties').classed('selected', false)
-    d3.select('.counties.c' + SELECTED_COUNTY).classed('selected', true).moveToFront()
-    updateTitles();
 
-    moveMap(goToState)
+    if (IS_MOBILE && placeId === 'US'){
+      GEOG_LEVEL = 'nation'
+      SELECTED_STATE = 'US'
+      SELECTED_COUNTY = ''
+      usLineChart();
+      updateTitles();
+
+      $('#mobile-county-dropdown').empty();
+
+    } else {
+      // input is county
+      if ( placeId.length > 2 ){
+        GEOG_LEVEL = 'county'
+        SELECTED_COUNTY = placeId
+        goToState = placeId.substring(0,2);
+        SELECTED_STATE = fipsNames[goToState]
+        countyLineChart();
+        $('.stateCountySearch').val([SELECTED_COUNTY, goToState]).trigger('change')
+        $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
+      //input is state
+      } else {
+        GEOG_LEVEL = 'state'
+        SELECTED_STATE = fipsNames[placeId]
+        goToState = placeId
+        stateLineChart();
+        filterSearchOptionsToState();
+        $('.stateCountySearch').val(goToState).trigger('change')
+      }
+      d3.selectAll('.counties').classed('selected', false)
+      d3.select('.counties.c' + SELECTED_COUNTY).classed('selected', true).moveToFront()
+      updateTitles();
+      moveMap(goToState)
+    }
+    //TODO check if this place is missing it's overall cat for any of the measures
+    //and disable those options in the main dropdown
   }
 
   function checkForData(e){
@@ -847,24 +908,29 @@ var PREVIOUS_SELECTED_MONTH
 
   //LINE CHARTS
   function setYDomain(data){
-    var domainInflater = 1.3
-    var min = d3.min(data[0].values, function(d){ return d.value }),
-      max = d3.max(data[0].values, function(d){ return d.value })
+    if (SELECTED_CAT === 'median_credit_score_all'){
+      return y.domain([300,850])
+    } else {
+      var domainInflater = 1.3
+      var min = d3.min(data[0].values, function(d){ return d.value }),
+        max = d3.max(data[0].values, function(d){ return d.value })
 
-    data.forEach(function(demo){
-      var newMin = d3.min(demo.values, function(date){ return date.value }),
-        newMax = d3.max(demo.values, function(date){ return date.value })
-      if ( newMin < min ) { min = newMin }
-      if ( newMax > max ) { max = newMax }
-    })
+      data.forEach(function(demo){
+        var newMin = d3.min(demo.values, function(date){ return date.value }),
+          newMax = d3.max(demo.values, function(date){ return date.value })
+        if ( newMin < min ) { min = newMin }
+        if ( newMax > max ) { max = newMax }
+      })
 
-    y.domain([0,max * domainInflater ])
+      y.domain([0,max * domainInflater ])
+    }
   }
 
   function usLineChart(){
     var topicStub = SELECTED_CAT.substring(0, SELECTED_CAT.length-3);
     //there is a coc in the data but we don't use it on this particular chart
-    var localDemos = ['all', 'api', 'bla', 'lat', 'nat', 'whi']
+    //2/15 researchers decided they don't want AAPI in this so I've remvoed 'api' from localDemos
+    var localDemos = ['all', 'bla', 'lat', 'nat', 'whi']
     var nested = [];
 
     localDemos.forEach(function(d){
@@ -968,7 +1034,6 @@ var PREVIOUS_SELECTED_MONTH
           'date': monthData.date,
           'value': +monthData[topicStub + DEMOS[i]]
         }
-        console.log(monthData)
                       //relies on order of nestedByAllMeasure following DEMOS
         nestedByAllMeasure[i].values.push(obj)
       })
@@ -1006,12 +1071,12 @@ var PREVIOUS_SELECTED_MONTH
 
     var labels = {
       'nation': {
-        'all': 'United States',
+        'all': 'All communities',
         'whi': 'White',
         'bla': 'Black', //cyan
         'lat': 'Hispanic', //magenta
         'api': 'AAPI', //navy
-        'nat': 'AI/AN'
+        'nat': 'Native American'
       },
       'state': {
         'all': stateName,
@@ -1037,10 +1102,46 @@ var PREVIOUS_SELECTED_MONTH
       .html(function(d){ return '<div class=\'legend-dash\'></div>' + labels[GEOG_LEVEL][d.key] })
   }
 
+
+  function fillTemplate(dotData){
+
+    var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard')
+                              //fill out the template
+    var mouseoverData = d3.nest().key(function(d){ return d.date }).entries(dotData),
+      thisMonth = mouseoverData[dataMonths.indexOf(SELECTED_MONTH)].values
+    for (var j = 0; j < thisMonth.length; j++){
+      //adds the scores
+      var text
+      if (isNaN(+thisMonth[j].value)){
+        text = 'n/a'
+      } else {
+        text = formatScore(thisMonth[j].value)
+      }
+      template.select('.' + thisMonth[j].key).text(text)
+    }
+        //fills out labels for specific places
+    if (GEOG_LEVEL === 'state'){
+      var stateName = stateNameLookup[SELECTED_STATE]
+      template.select('.cat.st').text(stateName)
+      template.select('.name-coc').text(stateName + ' communities of color')
+      template.select('.name-whi').text(stateName + ' majority white communities')
+      template.selectAll('.cat.ct, .val.ct').style('display', 'none')
+    } else if (GEOG_LEVEL === 'county'){
+      var stateName = stateNameLookup[SELECTED_STATE],
+      countyName = countyMap.get(SELECTED_COUNTY).county
+      template.select('.cat.st').text(stateName)
+      template.select('.name-coc').text(countyName + ' communities of color')
+      template.select('.name-whi').text(countyName + ' majority white communities')
+      template.selectAll('.cat.ct, .val.ct').style('display', 'inline-block')
+      template.select('.cat.ct').text()
+    }
+    //changes the month over teh whole table
+    d3.select('.selected-month').text(d3.timeFormat('%B')(parseTime(SELECTED_MONTH)))
+  }
+
   function drawLine(data){
+
     updateLineLegend(data);
-
-
     var dotData = []
     for (var i = 0; i < data.length; i++){
       for (var j = 0; j < data[i].values.length; j++){
@@ -1064,15 +1165,20 @@ var PREVIOUS_SELECTED_MONTH
 
     lineXAxis.call(xAxis)
 
+    d3.selectAll('.year-label').remove();
     lineXAxis.selectAll('.tick')._groups[0].forEach(function(tick){
       return d3.select(tick).append('text')
         .text('2020')
+        .attr('class', 'year-label')
         .attr('dy',3)
         .attr('y',25)
         .attr('fill','#000000')
       })
+    var num = dataMonths.indexOf(SELECTED_MONTH) + 2
+    d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + num + ')').classed('selected',true)
 
-    // lineYAxis.selectAll('.tick text').attr('x', 30).attr('dy', 14)
+    lineYAxis.selectAll('.tick text').attr('x', -15).attr('dy', 14)
+    lineYAxis.selectAll('.tick line').attr('x1', -lineMargin.left )
 
     //sort data so the highest value is first, this allows positioning the tooltip right over the top line
     data.sort(function(a,b){
@@ -1149,22 +1255,41 @@ var PREVIOUS_SELECTED_MONTH
         markers.moveToFront();
         markers.exit().remove();
 
-
-
         if (IS_MOBILE){
-            var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard'),
-            scoocher = 25
-            template.style('position', 'static').style('opacity', 1)
-                          //fill out the template
-            var mouseoverData = d3.nest().key(function(d){ return d.date }).entries(dotData),
-              thisMonth = mouseoverData[dataMonths.indexOf(SELECTED_MONTH)].values
+          var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard'),
+          scoocher = 25
+          $('.mobile-chart-tooltip').css('display', 'none')
+          template.style('display', 'block')
 
-            for (var j = 0; j < thisMonth.length; j++){
-              template.select('.' + thisMonth[j].key).text(thisMonth[j].value)
-            }
+          fillTemplate(dotData)
+
+          var num = dataMonths.indexOf(SELECTED_MONTH) + 2
+          //show selected month as selected on the axis
+          d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + num + ')').classed('selected',true)
+
+          lineXAxis.selectAll('.tick').on('click', function(tick){
+            //click changes the date
+            SELECTED_MONTH = d3.timeFormat('%-m/%-d/%Y')(tick)
+            // prepareDataAndUpdateMap();
+            updateTitles();
+
+            // $('#vertical-timeline > g.clicked').attr('class','unclicked')
+            // d3.select('#vertical-timeline > g[data-month=\'' + SELECTED_MONTH + '\']').classed('clicked', true)
+
+            d3.selectAll('.tick').classed('selected', false)
+            d3.select(this).classed('selected', true)
+
+            d3.selectAll('.dot')
+              .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 } })
+              .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
+
+            fillTemplate(dotData)
+
+          })
         } else {
-            var template = GEOG_LEVEL === 'nation' ? d3.select('#nation-scoreboard') : d3.select('#state-county-scoreboard'),
-            scoocher = 25
+          var template = GEOG_LEVEL === 'nation' ? d3.select('#nation-scoreboard') : d3.select('#state-county-scoreboard'),
+          scoocher = 25
+
           lineXAxis.selectAll('.tick').on('click', function(tick){
             //click changes the date
             SELECTED_MONTH = d3.timeFormat('%-m/%-d/%Y')(tick)
@@ -1199,12 +1324,42 @@ var PREVIOUS_SELECTED_MONTH
             var mouseoverData = d3.nest().key(function(d){ return d.date }).entries(dotData),
               thisMonth = mouseoverData[dataMonths.indexOf(SELECTED_MONTH)].values
 
+            var template = GEOG_LEVEL === 'nation' ? d3.select('#nation-scoreboard') : d3.select('#state-county-scoreboard')
+                              //fill out the template
+            var mouseoverData = d3.nest().key(function(d){ return d.date }).entries(dotData),
+              thisMonth = mouseoverData[dataMonths.indexOf(SELECTED_MONTH)].values
+
             for (var j = 0; j < thisMonth.length; j++){
-              template.select('.' + thisMonth[j].key).text(thisMonth[j].value)
+              var text
+              if (isNaN(+thisMonth[j].value)){
+                text = 'n/a'
+              } else {
+                text = formatScore(thisMonth[j].value)
+              }
+              template.select('.' + thisMonth[j].key).text(text)
+            }
+                  //fills out labels for specific places
+            if (GEOG_LEVEL === 'state'){
+              var stateName = stateNameLookup[SELECTED_STATE]
+              template.select('.cat.st').text(stateName)
+              template.select('.name-coc').text(stateName + ' communities of color')
+              template.select('.name-whi').text(stateName + ' majority white communities')
+              template.selectAll('.cat.ct, .val.ct').style('display', 'none')
+            } else if (GEOG_LEVEL === 'county'){
+              var stateName = stateNameLookup[SELECTED_STATE],
+              countyName = countyMap.get(SELECTED_COUNTY).county
+              template.select('.cat.st').text(stateName)
+              template.select('.name-coc').text(countyName + ' communities of color')
+              template.select('.name-whi').text(countyName + ' majority white communities')
+              template.selectAll('.cat.ct, .val.ct').style('display', 'inline-block')
+              template.select('.cat.ct').text()
             }
             //place the tooltip
+            var tickNum = dataMonths.indexOf(SELECTED_MONTH) + 2,
+              tooltipOffset = $('div.state-lines > svg > g > g.x-axis > g:nth-child(' + tickNum + ')').offset().left
+
             template
-              .style('left', (d3.event.pageX) - (template.node().getBoundingClientRect().width / 2) + 'px')
+              .style('left', tooltipOffset - (template.node().getBoundingClientRect().width / 2) + 10 + 'px')
               .style('top', $('.data-line').offset().top - template.node().getBoundingClientRect().height - scoocher + 'px')
               .style('opacity', 1)
 
@@ -1216,6 +1371,11 @@ var PREVIOUS_SELECTED_MONTH
               SELECTED_MONTH = d3.timeFormat('%-m/%-d/%Y')(tick)
             }
             d3.selectAll('#vertical-timeline > g').classed('moused', false)
+            d3.selectAll('.tick').classed('selected', false)
+                      var num = dataMonths.indexOf(SELECTED_MONTH) + 2
+          //show selected month as selected on the axis
+          d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + num + ')').classed('selected',true)
+
             prepareDataAndUpdateMap();
             updateTitles();
             //changing the time only changes which line marker is highlighted, it doesn't redraw the chart
@@ -1232,7 +1392,8 @@ var PREVIOUS_SELECTED_MONTH
 
     var topicStub = 'median_credit_score_';
     //there is a coc in the data but we don't use it on this particular chart
-    var localDemos = ['all', 'api', 'bla', 'lat', 'nat', 'whi']
+    //deleting 'api' here by researcher request
+    var localDemos = ['all', 'bla', 'lat', 'nat', 'whi']
     var nested = [];
 
     localDemos.forEach(function(d){
@@ -1263,7 +1424,9 @@ var PREVIOUS_SELECTED_MONTH
     lilChartYAxisG.call(yAxisLilChart)
     lilChartXAxisG.call(xAxisLilChart)
 
-    // lilChartYAxisG.selectAll('.tick text').attr('x', 18).attr('dy', 14)
+
+    lilChartYAxisG.selectAll('.tick text').attr('x', -15).attr('dy', 14)
+    lilChartYAxisG.selectAll('.tick line').attr('x1', -lilChartMargin.left )
 
     lilChartXAxisG.selectAll('.tick')._groups[0].forEach(function(tick){
       return d3.select(tick).append('text')
@@ -1371,12 +1534,26 @@ var PREVIOUS_SELECTED_MONTH
       }
     } else {
       makeMobileMenu()
-                  var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard')
-            template.style('position', 'static').style('opacity', 1)
+
+      var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard'),
+      scoocher = 25
+
+      template.style('display', 'block')
+                    //fill out the template
+      // var mouseoverData = d3.nest().key(function(d){ return d.date }).entries(dotData),
+      //   thisMonth = mouseoverData[dataMonths.indexOf(SELECTED_MONTH)].values
+
+      // for (var j = 0; j < thisMonth.length; j++){
+      //   template.select('.' + thisMonth[j].key).text(thisMonth[j].value)
+      // }
+
+
+      lineYAxis.selectAll('.tick text').attr('x', -15).attr('dy', 14)
+      lineYAxis.selectAll('.tick line').attr('x1', -lineMargin.left )
     }
 
 
-    lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width'))
+    lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')) - mobileShrinkAmt
     lineChartDivHeight = lineChartDivWidth * lineChartRatio
     lineChartWidth = lineChartDivWidth - lineMargin.left - lineMargin.right
     lineChartHeight = lineChartDivHeight - lineMargin.top - lineMargin.bottom

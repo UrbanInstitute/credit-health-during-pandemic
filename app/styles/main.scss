@@ -186,24 +186,50 @@ ul {
     font-weight: bold;
   }
 
-  ul {
-    list-style-type: disc;
+  h4.takeaways {
+    margin-bottom: 0;
+    margin-top: 70px;
+  }
 
+  h5 {
+    font-size: 18px;
+    font-weight: 400;
+    color: $gray-6;
+    margin: 0;
+  }
+
+  #policy-actions, #findings {
+    ul {
+      margin-bottom: 50px;
+      margin-top: 50px;
+       list-style-type: disc;
       li {
-        display: block;
-        font-size: 20px;
-        margin-bottom: 10px;
+        display: list-item;
+        font-size: 18px;
+        margin-left: 50px;
+        margin-bottom: 20px;
+        width: 80%;
       }
+    }
+  }
+
+  p {
+    margin: 20px 0;
   }
 
   .see-more-btn {
     cursor: pointer;
     font-weight: 700;
+    margin-bottom: 10px;
     text-align: right;
       span {
         color: $cyan;
         padding-left: 3px;
       }
+  }
+
+  .see-more-btn.see-less {
+    margin-top: -20px;
   }
 
   .see-more-container {
@@ -222,7 +248,7 @@ ul {
 
 #credit-health-hed {
   display: block;
-  margin: 130px auto 20px auto;
+  margin: 130px auto 40px auto;
   max-width: 80%;
 }
 
@@ -243,15 +269,19 @@ ul {
   // max-width: 650px; <- I think this is the template small well
   max-width: 760px;
 
-   p:first-of-type {
-    padding-top: 15px;
-   }
+  p:first-of-type {
+  padding-top: 15px;
+  }
+}
+
+.small-well.conclusion p:first-of-type {
+  padding-top: 0;
 }
 
 .text-wrapper {
-  padding-top: 56px;
   margin: 0 auto 100px auto;
   max-width: 1150px;
+  padding-top: 20px;
   width: 80%;
 }
 
@@ -306,6 +336,10 @@ g.grid > g > line {
   display: inline;
 }
 
+g.grid > g:nth-child(2) > text {
+  display: none;
+}
+
 .tick {
   cursor: pointer;
   font-family: "Lato", sans-serif;
@@ -314,6 +348,11 @@ g.grid > g > line {
 
 .tick.selected {
   font-weight: 700;
+}
+
+.tick.selected::after {
+  content: '';
+  border-bottom: 1px solid red;
 }
 
 .hed {
@@ -363,6 +402,10 @@ svg > g > g.grid > g:nth-child(2) > line {
 
     svg.map {
       overflow: hidden; //for IE
+    }
+
+    p.chart-note {
+      margin-top: -30px;
     }
 }
 
@@ -436,31 +479,13 @@ h3#measure-menu-title {
   stroke-width: 3px;
 }
 
-// ul.us-legend {
-//   list-style-type: none;
-//   padding-left: 0;
-//   padding-right: 10px;
-// }
 
-// ul.us-legend > li {
-//   color: rgba(53,53,53,1);
-//   display: inline;
-//   opacity: 1;
-//   padding-left: 5px;
-//   padding-right: 10px;
-//   margin-left: 15px;
-// }
-
-ul.us-legend {
-  li {
-    font-size: 14px;
-  }
-}
-
+// bad names, this is the map's legend
 #legend-container {
   background-color: rgba(255,255,255,0.6);
   display: inline-block;
   left: 10px;
+  margin-bottom: -70px;
   position: relative;
   top: -70px;
 
@@ -498,7 +523,13 @@ ul.us-legend {
   }
 
   li {
+    display: inline-block;
+    font-size: 14px;
     margin-right: 5px;
+  }
+
+  li.nationall {
+    width: 100%;
   }
 
   li.nationall::after {
@@ -745,7 +776,7 @@ ul.us-legend {
 
 #dropdown-button {
   background-color: #FDD870;
-  width: 380px;
+  width: 395px;
 }
 
 // select2
@@ -802,6 +833,20 @@ ul.us-legend {
 
 .select2-selection.select2-selection--multiple {
   height: 45px;
+}
+// https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript
+#text-measurer {
+  font-size: 22px;
+  font-weight: 700;
+  position: absolute;
+  visibility: hidden;
+  height: auto;
+  width: auto;
+  white-space: nowrap;
+}
+
+.tick > text {
+  fill: #696969;
 }
 
 ul li.select2-results__option {
@@ -887,8 +932,13 @@ ul li.select2-results__option {
   margin-left: -21px;
 }
 
+// #line-legend {
+//   li {
+//     display: inline-block;
+//   }
+// }
 
-#mobile-nation-scoreboard, #mobile-state-county-scoreboard {
+.mobile-chart-tooltip {
   display: none;
 }
 
@@ -925,17 +975,17 @@ ul li.select2-results__option {
     width: 100%;
 
       h4.hed {
-        margin: 0 auto;
-        width: 85%;
+        margin: 0 auto 10px auto;
+        width: 90%;
       }
 
       ul#line-legend {
-        margin-left: 7.5%;
+        margin-left: 5%;
       }
 
       .state-lines {
-        margin-left: 7.5%;
-        margin-bottom: 10px;
+        margin-left: 5%;
+        margin-bottom: 5px;
       }
 
 
@@ -959,11 +1009,19 @@ ul li.select2-results__option {
     padding-bottom: 15px;
       table {
         border-collapse: separate;
-        border-spacing: 0px 1px;
+        border-spacing: 0px 4px;
         font-size: 14px;
         margin: 0 auto;
         table-layout: auto;
-        width: 85%;
+        width: 90%;
+          td {
+            vertical-align: bottom;
+            line-height: 1.2;
+          }
+
+          td.val {
+            font-weight: 700;
+          }
       }
 
     .cl2 {
@@ -974,7 +1032,7 @@ ul li.select2-results__option {
       display: inline-block;
       font-size: 16px;
       font-weight: 700;
-      margin-left: 7.5%;
+      margin-left: 5%;
       margin-top: 15px;
       margin-bottom: 5px;
     }
@@ -983,7 +1041,7 @@ ul li.select2-results__option {
 
   .menu {
     border-top: 1px solid #D2D2D2;
-    padding: 1px 7.5%;
+    padding: 1px 5%;
   }
 
   #main-viz-container > div:nth-child(3) {
@@ -991,24 +1049,25 @@ ul li.select2-results__option {
     margin-bottom: 40px;
   }
 
+
   .mobile-only {
     display: block;
   }
 
   .mobile-wrapper {
     margin: 0 auto;
-    width: 85%;
+    width: 90%;
   }
 
   .mobile-wrapper.chart-note {
-    margin-top: 30px;
+    margin-top: 20px;
   }
 
 
   #shareUrlBtn {
     display: inline-block;
-    margin-left: 7.5%;
-    margin-top: 30px;
+    margin-left: 5%;
+    margin-top: 20px;
   }
 
   .sentence-wrapper {
@@ -1025,8 +1084,13 @@ ul li.select2-results__option {
 
   .text-wrapper {
     margin-bottom: 40px;
-    width: 85%;
+    width: 90%;
   }
+
+  .tick.selected > text {
+     fill: $cyan;
+  }
+
 
   .ui-selectmenu-button.ui-button {
     width: 100%;

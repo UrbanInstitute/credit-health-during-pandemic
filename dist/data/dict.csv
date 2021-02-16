@@ -62,17 +62,17 @@ label,value
 "Mortgage Delinquency Rate (30+ days), Majority Black Communities",mortgage_del_rate_bla
 "Mortgage Delinquency Rate (30+ days), Majority Hispanic/Latinx Communities",mortgage_del_rate_lat
 "Mortgage Delinquency Rate (30+ days), Majority White Communities",mortgage_del_rate_whi
-"Share with Nonbank Credit, All",afs_cred_all
-"Share with Nonbank Credit, Communities of Color",afs_cred_coc
-"Share with Nonbank Credit, Majority Aaian and Pacific Islander Communities",afs_cred_api
-"Share with Nonbank Credit, Majority American Indian and Alaskan Native Communities",afs_cred_nat
-"Share with Nonbank Credit, Majority Black Communities",afs_cred_bla
-"Share with Nonbank Credit, Majority Hispanic/Latinx Communities",afs_cred_lat
-"Share with Nonbank Credit, Majority White Communities",afs_cred_whi
-"Nonbank Credit Delinquency Rate (30+ days), All",del_afs_credit_rate_all
-"Nonbank Credit Delinquency Rate (30+ days), Communities of Color",del_afs_credit_rate_coc
-"Nonbank Credit Delinquency Rate (30+ days), Majority American Indian and Alaskan Native Communities",del_afs_credit_rate_nat
-"Nonbank Credit Delinquency Rate (30+ days), Majority Asian and Pacific Islander Communities",del_afs_credit_rate_api
-"Nonbank Credit Delinquency Rate (30+ days), Majority Black Communities",del_afs_credit_rate_bla
-"Nonbank Credit Delinquency Rate (30+ days), Majority Hispanic/Latinx Communities",del_afs_credit_rate_lat
-"Nonbank Credit Delinquency Rate (30+ days), Majority White Communities",del_afs_credit_rate_whi
+"Share with AFS Loan, All",afs_cred_all
+"Share with AFS Loan, Communities of Color",afs_cred_coc
+"Share with AFS Loan, Majority Aaian and Pacific Islander Communities",afs_cred_api
+"Share with AFS Loan, Majority American Indian and Alaskan Native Communities",afs_cred_nat
+"Share with AFS Loan, Majority Black Communities",afs_cred_bla
+"Share with AFS Loan, Majority Hispanic/Latinx Communities",afs_cred_lat
+"Share with AFS Loan, Majority White Communities",afs_cred_whi
+"AFS Loan Delinquency Rate (30+ days), All",del_afs_credit_rate_all
+"AFS Loan Delinquency Rate (30+ days), Communities of Color",del_afs_credit_rate_coc
+"AFS Loan Delinquency Rate (30+ days), Majority American Indian and Alaskan Native Communities",del_afs_credit_rate_nat
+"AFS Loan Delinquency Rate (30+ days), Majority Asian and Pacific Islander Communities",del_afs_credit_rate_api
+"AFS Loan Delinquency Rate (30+ days), Majority Black Communities",del_afs_credit_rate_bla
+"AFS Loan Delinquency Rate (30+ days), Majority Hispanic/Latinx Communities",del_afs_credit_rate_lat
+"AFS Loan Delinquency Rate (30+ days), Majority White Communities",del_afs_credit_rate_whi

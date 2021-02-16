@@ -94,12 +94,12 @@
         <div id="median-credit-and-race" class="inline-chart right">
           <h3>Median credit scores reveal persistent racial disparities</h3>
 
-          <ul class="us-legend"><li class="nationall"><div class="legend-dash"></div>United States</li><li class="nationapi"><div class="legend-dash"></div>AAPI</li><li class="nationbla"><div class="legend-dash"></div>Black</li><li class="nationlat"><div class="legend-dash"></div>Hispanic</li><li class="nationnat"><div class="legend-dash"></div>NA</li><li class="nationwhi"><div class="legend-dash"></div>White</li></ul>
+          <ul class="us-legend"><li class="nationall"><div class="legend-dash"></div>All communities</li><li class="nationbla"><div class="legend-dash"></div>Black</li><li class="nationlat"><div class="legend-dash"></div>Hispanic</li><li class="nationnat"><div class="legend-dash"></div>Native&nbsp;American</li><li class="nationwhi"><div class="legend-dash"></div>White</li></ul>
           <div id="median-credit-and-race-chart"></div>
-          <p class='chart-note'><b>Source:</b> Tabulations of Urban Institute credit bureau data.<br><b>Note:</b> AAPI = Asian American and Pacific Islanders.</p>
+          <p class='chart-note'><b>Source:</b> Tabulations of Urban Institute credit bureau data.<br><b>Note:</b> Credit Scores are Vantage Scores that range from 300-850.  Native communities are based on credit records for people who live in zip codes where more than 60 percent of residents are Natives. In the same way, majority-white, Black, and Latino communities are zip codes where more than 60 percent of residents are in the respective racial or ethnic group.</p>
         </div>
         <p>
-          Majority-Black communities and majority-Native American communities have the lowest median credit scores and the highest debt in collection rates, subprime credit score rates, and use of high-cost payday and other nonbank loans. These racial disparities reflect historical inequities that reduced wealth and limited economic choices for communities of color.
+          Majority-Black communities and majority-Native American communities have the lowest median credit scores and the highest debt in collection rates, subprime credit score rates, and use of high-cost payday and other Alternative Financial Services (AFS) loans. These racial disparities reflect historical inequities that reduced wealth and limited economic choices for communities of color.
         </p>
 
         <p>
@@ -131,7 +131,7 @@
           <circle class="timeline-marker-dot" data-note="april-note" cx="145.7" cy="201" r="5"/>
           <circle class="timeline-marker-dot" data-note="september-note" cx="145.7" cy="565" r="5"/>
 
-          <g class="unclicked " data-month="2/1/2020">
+          <g class="clicked " data-month="2/1/2020">
             <circle class="dot-hilite" cx="145.7" cy="18" r="17"/>
             <text transform="matrix(1 0 0 1 1.9358 24.1288)" class="month-label">February 2020</text>
             <circle class="inner-dot" cx="145.7" cy="18" r="8"/>
@@ -151,7 +151,7 @@
             <text transform="matrix(1 0 0 1 18.4959 491.0164)" class="month-label">August 2020</text>
             <circle class="inner-dot" cx="145.7" cy="486" r="8"/>
           </g>
-          <g class="clicked " data-month="10/1/2020">
+          <g class="unclicked " data-month="10/1/2020">
             <circle class="dot-hilite" cx="145.7" cy="642" r="17"/>
             <text transform="matrix(1 0 0 1 8.4788 646.6456)" class="month-label">October 2020</text>
             <circle class="inner-dot" cx="145.7" cy="642" r="8"/>
@@ -177,6 +177,7 @@
         <div class="zoom-btn-wrapper">
           <img id="zoomout" src="images/reload.png">
         </div>
+        <p class="chart-note"><b>Note:</b> NA = "Not available." Data for this location is not available because the sample size is too small.</p>
       </div>
 
       <div id="line-chart-container">
@@ -193,9 +194,6 @@
               </tr>
               <tr>
                 <td class='cat'>AI/AN</td><td class="val nat">tk</td>
-              <tr>
-              </tr>
-                <td class='cat'>AAPI</td><td class="val api">tk</td>
               </tr>
               <tr>
                 <td class='cat'>Black</td><td class="val bla">tk</td>
@@ -211,56 +209,56 @@
         </div>
 
         <div class="mobile-chart-tooltip" id="mobile-nation-scoreboard">
-          <span class='selected-month'>October</span>
+          <span class='selected-month'>February</span>
           <table>
             <tbody>
               <tr>
-                <td class='cat'>United States</td><td class="val all">tk</td><td class='cat cl2'>Black communities</td><td class="val bla">tk</td>
+                <td class='cat'>All communities</td><td class="val all">tk</td><td class='cat cl2'>Native American</td><td class="val nat">tk</td>
               </tr>
               <tr>
-                <td class='cat'>AI/AN</td><td class="val nat">tk</td><td class='cat cl2'>Hispanic communities</td><td class="val lat">tk</td>
+                <td class='cat'>Black communities</td><td class="val bla">tk</td><td class='cat cl2'>White communities</td><td class="val whi">tk</td>
               <tr>
               </tr>
-                <td class='cat'>AAPI</td><td class="val api">tk</td><td class='cat cl2'>White communities</td><td class="val whi">tk</td>
+                <td class='cat'>Hispanic communities</td><td class="val lat">tk</td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <div class="chart-tooltip" id="state-county-scoreboard">
-          <span class='selected-month'>October</span>
           <table>
             <tbody>
               <tr>
-                <td class='cat'>United States</td><td class='val us'>tk</td>
+                <td class='cat'>United States</td><td class='val us-all'>tk</td>
               </tr>
               <tr>
-                <td class='cat'>State</td><td class='val st'>tk</td>
+                <td class='cat st'>State</td><td class='val st all st-all'>tk</td>
               </tr>
               <tr>
-                <td class='cat'>County</td><td class='val ct'>tk</td>
+                <td class='cat ct '>County</td><td class='val ct ct-all'>tk</td>
               </tr>
               <tr>
-                <td class='cat'>County communities of color</td><td class='val ct-coc'>tk</td>
+                <td class='cat name-coc'>County communities of color</td><td class='val coc ct-coc'>tk</td>
               </tr>
               <tr>
-                <td class='cat'>County majority white counties</td><td class='val ct-whi'>tk</td>
+                <td class='cat name-whi'>County majority white counties</td><td class='val whi ct-whi'>tk</td>
               </tr>
             </tbody>
           </table>
         </div>
 
         <div class="mobile-chart-tooltip" id="mobile-state-county-scoreboard">
+          <span class='selected-month'>February</span>
           <table>
             <tbody>
               <tr>
-                <td class='cat'>United States</td><td class='val us'>tk</td><td class='cat'>County communities of color</td><td class='val ct-coc'>tk</td>
+                <td class='cat'>United States</td><td class='val us-all'>tk</td><td class='cat cl2 name-coc'>County communities of color</td><td class='val coc'>tk</td>
               </tr>
               <tr>
-                <td class='cat'>State</td><td class='val st'>tk</td><td class='cat'>County majority white counties</td><td class='val ct-whi'>tk</td>
+                <td class='cat st'>State</td><td class='val st all'>tk</td><td class='cat cl2 name-whi'>County majority white counties</td><td class='val whi'>tk</td>
               </tr>
               <tr>
-                <td class='cat'>County</td><td class='val ct'>tk</td>
+                <td class='cat ct'>County</td><td class='val ct'>tk</td>
               </tr>
             </tbody>
           </table>
@@ -280,14 +278,16 @@
           <div class="copied-text" style="opacity: 0;">Copied to clipboard!</div>
         </div>
       </div>
+
     </div> <!-- end line chart container -->
 
 
 
+    <div class="clear"></div>
     <div class="text-wrapper">
       <div class="small-well conclusion">
-    <div class="clear"></div>
-        <h4 class="takeaways"><b>Key Findings:</b> How October 2020 credit health data compare with February 2020</h4>
+        <h4 class="takeaways">Key Findings</h4>
+        <h5>How October 2020 credit health data compare with February 2020</h5>
         <p>
           Several credit health measures improved during the pandemic, but many families and communities still face financial challenges.
         </p>
@@ -297,7 +297,7 @@
             <li><b>Credit scores improved.</b> The median credit score was 704 in October 2020, compared with a median credit score of 693 in February 2020. About 1 in 5 (22 percent) adults with a credit record had a subprime credit score in October. This was an improvement from February when 25 percent had a subprime credit score.</li>
             <li><b>A smaller share of residents carried past-due debt.</b> Nearly 1 in 3 (29 percent) adults with a credit record had debt in collections in October 2020, about the same as in February 2020. The share of borrowers with past-due debt declined for those borrowing student loans, credit card debt, auto and retail loans, and mortgages.</li>
             <li><b>Alternative financial services loan (e.g., payday loan) use shows signs of financial hardship.</b> In October, 4.8 percent of adults with a credit file had used alternative financial service loans like payday loans, an increase from 4.4 percent in February. About 9.4 percent of people with alternative financial services loans were 30 or more days delinquent in October, compared to 11.5 percent in February.</li>
-            <li><b>Racial disparities in credit health reflect historical inequities that reduced wealth and limited economic choices for communities of color.</b> The credit health of major demographic groups improved during the pandemic, but gaps have not narrowed. Majority-Black, Hispanic, and Native American communities experience rates of subprime credit scores, debt in collections, and high-cost nonbank borrowing at least 1.5 times higher than rates in majority-white communities.</li>
+            <li><b>Racial disparities in credit health reflect historical inequities that reduced wealth and limited economic choices for communities of color.</b> The credit health of major demographic groups improved during the pandemic, but gaps have not narrowed. Majority-Black, Hispanic, and Native American communities experience rates of subprime credit scores, debt in collections, and high-cost AFS borrowing at least 1.5 times higher than rates in majority-white communities.</li>
           </ul>
         </div>
         <h4 class="takeaways"><b>Policy recommendations</b></h4>
@@ -388,9 +388,7 @@
       <p>
         <i>Mortgage delinquency rate (30+ days):</i> share of mortgage holders with a mortgage 30 days or more past due.
       </p>
-      <p>
-        <i>Share with AFS credit:</i> share of people with a credit bureau record with an alternative financial sector loan.
-      </p>
+
       <p>
         <i>Share with AFS loan:</i> share of people with a credit bureau record with an alternative financial sector loan. Alternative Financial Services are financial services provided outside traditional banking institutions. These typically include short-term unsecure loans (such as payday loans), loans where personal property is used as collateral (such as pawn shop and auto title loans), and transactions under which property is leased in exchange for a weekly or monthly payment with the option to purchase (rent-to-own).
       </p>
@@ -448,6 +446,8 @@
   <div class="timeline-tooltip" id="september-note">
     The US Centers for Disease Control and Prevention issues a national eviction moratorium
   </div>
+
+  <div id="text-measurer"></div>
 
 
 

@@ -723,7 +723,7 @@ button.ui-button::-moz-focus-inner {
   white-space: nowrap;
   width: 232px;
   height: 44px;
-    background: url(../../images/dropdown-bg.png) no-repeat right #ffffff;
+    background: url(../images/dropdown-bg.png) no-repeat right #ffffff;
     background-size: 30px 20px;
   border: 1px solid #ffffff;
     /*width: 45px;*/
