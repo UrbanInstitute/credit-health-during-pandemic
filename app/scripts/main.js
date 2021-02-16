@@ -360,7 +360,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           maximumSelectionLength: 2
       });
   })
-var PREVIOUS_SELECTED_MONTH
+
+  var PREVIOUS_SELECTED_MONTH
   $('#vertical-timeline > g').on({
     click: function(){
       $('#vertical-timeline > g.clicked').attr('class','unclicked')
@@ -1105,7 +1106,14 @@ var PREVIOUS_SELECTED_MONTH
 
   function fillTemplate(dotData){
 
-    var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard')
+    var template
+    if (IS_MOBILE){
+      template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard')
+      //changes the month over teh whole table
+      d3.select('.selected-month').text(d3.timeFormat('%B')(parseTime(SELECTED_MONTH)))
+    } else {
+      template = GEOG_LEVEL === 'nation' ? d3.select('#nation-scoreboard') : d3.select('#state-county-scoreboard')
+    }
                               //fill out the template
     var mouseoverData = d3.nest().key(function(d){ return d.date }).entries(dotData),
       thisMonth = mouseoverData[dataMonths.indexOf(SELECTED_MONTH)].values
@@ -1135,9 +1143,10 @@ var PREVIOUS_SELECTED_MONTH
       template.selectAll('.cat.ct, .val.ct').style('display', 'inline-block')
       template.select('.cat.ct').text()
     }
-    //changes the month over teh whole table
-    d3.select('.selected-month').text(d3.timeFormat('%B')(parseTime(SELECTED_MONTH)))
+
   }
+
+
 
   function drawLine(data){
 
@@ -1165,15 +1174,27 @@ var PREVIOUS_SELECTED_MONTH
 
     lineXAxis.call(xAxis)
 
+    d3.selectAll('.click-catcher').remove();
     d3.selectAll('.year-label').remove();
+
     lineXAxis.selectAll('.tick')._groups[0].forEach(function(tick){
-      return d3.select(tick).append('text')
+      var selection = d3.select(tick)
+      selection.append('text')
         .text('2020')
         .attr('class', 'year-label')
         .attr('dy',3)
         .attr('y',25)
         .attr('fill','#000000')
-      })
+
+      selection.append('rect')
+        .attr('width', lineChartWidth / dataMonths.length)
+        .attr('height', 28) // text y + dy
+        .attr('fill', '#FFFFFF')
+        .attr('fill-opacity', 0)
+        .attr('class', 'click-catcher')
+        .attr('x', ( (lineChartWidth / dataMonths.length) / 2 ) * -1)
+    })
+
     var num = dataMonths.indexOf(SELECTED_MONTH) + 2
     d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + num + ')').classed('selected',true)
 
@@ -1286,7 +1307,7 @@ var PREVIOUS_SELECTED_MONTH
             fillTemplate(dotData)
 
           })
-        } else {
+        } else { //DESKTOP
           var template = GEOG_LEVEL === 'nation' ? d3.select('#nation-scoreboard') : d3.select('#state-county-scoreboard'),
           scoocher = 25
 
@@ -1320,46 +1341,14 @@ var PREVIOUS_SELECTED_MONTH
 
             d3.select('#vertical-timeline > g[data-month=\'' + SELECTED_MONTH + '\']').classed('moused', true)
 
-              //fill out the template
-            var mouseoverData = d3.nest().key(function(d){ return d.date }).entries(dotData),
-              thisMonth = mouseoverData[dataMonths.indexOf(SELECTED_MONTH)].values
+            fillTemplate(dotData)
 
-            var template = GEOG_LEVEL === 'nation' ? d3.select('#nation-scoreboard') : d3.select('#state-county-scoreboard')
-                              //fill out the template
-            var mouseoverData = d3.nest().key(function(d){ return d.date }).entries(dotData),
-              thisMonth = mouseoverData[dataMonths.indexOf(SELECTED_MONTH)].values
-
-            for (var j = 0; j < thisMonth.length; j++){
-              var text
-              if (isNaN(+thisMonth[j].value)){
-                text = 'n/a'
-              } else {
-                text = formatScore(thisMonth[j].value)
-              }
-              template.select('.' + thisMonth[j].key).text(text)
-            }
-                  //fills out labels for specific places
-            if (GEOG_LEVEL === 'state'){
-              var stateName = stateNameLookup[SELECTED_STATE]
-              template.select('.cat.st').text(stateName)
-              template.select('.name-coc').text(stateName + ' communities of color')
-              template.select('.name-whi').text(stateName + ' majority white communities')
-              template.selectAll('.cat.ct, .val.ct').style('display', 'none')
-            } else if (GEOG_LEVEL === 'county'){
-              var stateName = stateNameLookup[SELECTED_STATE],
-              countyName = countyMap.get(SELECTED_COUNTY).county
-              template.select('.cat.st').text(stateName)
-              template.select('.name-coc').text(countyName + ' communities of color')
-              template.select('.name-whi').text(countyName + ' majority white communities')
-              template.selectAll('.cat.ct, .val.ct').style('display', 'inline-block')
-              template.select('.cat.ct').text()
-            }
-            //place the tooltip
+            //get the position of this month on the x-axis of the line chart
             var tickNum = dataMonths.indexOf(SELECTED_MONTH) + 2,
               tooltipOffset = $('div.state-lines > svg > g > g.x-axis > g:nth-child(' + tickNum + ')').offset().left
-
+            //place the tooltip
             template
-              .style('left', tooltipOffset - (template.node().getBoundingClientRect().width / 2) + 10 + 'px')
+              .style('left', tooltipOffset - (template.node().getBoundingClientRect().width / 2) + 28 + 'px')
               .style('top', $('.data-line').offset().top - template.node().getBoundingClientRect().height - scoocher + 'px')
               .style('opacity', 1)
 
@@ -1369,19 +1358,26 @@ var PREVIOUS_SELECTED_MONTH
             //if you're mousing out of something you just clicked on don't revert to PREVIOUS_SELECTED_MONTH
             if ( d3.select(this).classed('selected') ){
               SELECTED_MONTH = d3.timeFormat('%-m/%-d/%Y')(tick)
+              //be sure it's not also classed 'unclicked'
+              d3.select('#vertical-timeline > g[data-month=\'' + SELECTED_MONTH + '\']').classed('unclicked', false)
+            //add clicked to the selected month
+            d3.select('#vertical-timeline > g[data-month=\'' + SELECTED_MONTH + '\']').classed('clicked', true)
             }
+            //take the temporary highlight off the vertical timeline
             d3.selectAll('#vertical-timeline > g').classed('moused', false)
-            d3.selectAll('.tick').classed('selected', false)
-                      var num = dataMonths.indexOf(SELECTED_MONTH) + 2
-          //show selected month as selected on the axis
-          d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + num + ')').classed('selected',true)
 
-            prepareDataAndUpdateMap();
-            updateTitles();
-            //changing the time only changes which line marker is highlighted, it doesn't redraw the chart
+
+            //control which tick on the line chart is selected
+            d3.selectAll('.tick').classed('selected', false)
+            var num = dataMonths.indexOf(SELECTED_MONTH) + 2
+            d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + num + ')').classed('selected',true)
+            //change which line markers are highlighted
             d3.selectAll('.dot')
               .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 } })
               .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
+
+            prepareDataAndUpdateMap();
+            updateTitles();
 
         })
 
