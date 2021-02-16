@@ -367,25 +367,35 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       $('#vertical-timeline > g.clicked').attr('class','unclicked')
       $(this).attr('class','clicked')
       SELECTED_MONTH = $(this).attr('data-month')
-      prepareDataAndUpdateMap();
-      updateTitles();
+
+      //show selected month as selected on the line chart axis
+      d3.selectAll('.tick.selected').classed('selected', false);
+      var gPosition = dataMonths.indexOf(SELECTED_MONTH) + 2
+      d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + gPosition + ')').classed('selected',true)
+
       //changing the time only changes which line marker is highlighted, it doesn't redraw the chart
       d3.selectAll('.dot')
         .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 } })
         .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
+      prepareDataAndUpdateMap();
+      updateTitles();
     },
     mouseenter: function(){
       PREVIOUS_SELECTED_MONTH = SELECTED_MONTH
       SELECTED_MONTH = $(this).attr('data-month')
-      prepareDataAndUpdateMap();
-      updateTitles();
 
       d3.select(this).classed('moused', true)
+
+      d3.selectAll('.tick.selected').classed('selected', false);
+      var gPosition = dataMonths.indexOf(SELECTED_MONTH) + 2
+      d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + gPosition + ')').classed('selected',true)
 
       //changing the time only changes which line marker is highlighted, it doesn't redraw the chart
       d3.selectAll('.dot')
         .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 } })
         .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
+      prepareDataAndUpdateMap();
+      updateTitles();
 
     },
     mouseleave: function(){
@@ -396,13 +406,17 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       if ( d3.select(this).classed('clicked') ){
         SELECTED_MONTH = div.attr('data-month')
       }
+       d3.selectAll('.tick.selected').classed('selected', false);
+      var gPosition = dataMonths.indexOf(SELECTED_MONTH) + 2
+      d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + gPosition + ')').classed('selected',true)
 
-      prepareDataAndUpdateMap();
-      updateTitles();
       //changing the time only changes which line marker is highlighted, it doesn't redraw the chart
       d3.selectAll('.dot')
         .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 } })
         .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
+
+      prepareDataAndUpdateMap();
+      updateTitles();
 
     }
   })
@@ -457,7 +471,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     countyName = '',
     countyScore = '';
 
-    var usNote = "<b>Source:</b> Tabulations of Urban Institute credit bureau data.<br><b>Notes:</b> Detailed race data is not available for communities that are too small. NA = Native American; AAPI = Asian American and Pacific Islander.",
+    var usNote = '<b>Source:</b> Tabulations of Urban Institute credit bureau data.<br><b>Notes:</b> Detailed race data is not available for communities that are too small. NA = Native American; AAPI = Asian American and Pacific Islander.',
     stateAndCountyNote = '<b>Note:</b> Detailed race data is not available for communities that are too small.'
 
     if ( GEOG_LEVEL === 'state' ){
@@ -1140,8 +1154,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       template.select('.cat.st').text(stateName)
       template.select('.name-coc').text(countyName + ' communities of color')
       template.select('.name-whi').text(countyName + ' majority white communities')
-      template.selectAll('.cat.ct, .val.ct').style('display', 'inline-block')
-      template.select('.cat.ct').text()
+      template.selectAll('.cat.ct, .val.ct').style('display', 'table-cell')
+      template.select('.cat.ct').text(countyName)
     }
 
   }
@@ -1196,8 +1210,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         .attr('y', -lineChartHeight)
     })
 
-    var num = dataMonths.indexOf(SELECTED_MONTH) + 2
-    d3.select("div.state-lines > svg > g > g.x-axis > g:nth-child(" + num + ")").classed('selected',true)
+    var gPosition = dataMonths.indexOf(SELECTED_MONTH) + 2
+    d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + gPosition + ')').classed('selected',true)
 
     lineYAxis.selectAll('.tick text').attr('x', -15).attr('dy', 14)
     lineYAxis.selectAll('.tick line').attr('x1', -lineMargin.left )
@@ -1285,9 +1299,9 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
           fillTemplate(dotData)
 
-          var num = dataMonths.indexOf(SELECTED_MONTH) + 2
+          var gPosition = dataMonths.indexOf(SELECTED_MONTH) + 2
           //show selected month as selected on the axis
-          d3.select("div.state-lines > svg > g > g.x-axis > g:nth-child(" + num + ")").classed('selected',true)
+          d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + gPosition + ')').classed('selected',true)
 
           lineXAxis.selectAll('.tick').on('click', function(tick){
             //click changes the date
@@ -1352,7 +1366,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
             //get the position of this month on the x-axis of the line chart
             var tickNum = dataMonths.indexOf(SELECTED_MONTH) + 2,
-              tooltipOffset = $("div.state-lines > svg > g > g.x-axis > g:nth-child(" + tickNum + ")").offset().left
+              tooltipOffset = $('div.state-lines > svg > g > g.x-axis > g:nth-child(' + tickNum + ')').offset().left
             //place the tooltip
             template
               .style('left', tooltipOffset - (template.node().getBoundingClientRect().width / 2) + 30 + 'px')

@@ -778,6 +778,27 @@ ul.us-legend {
   width: 395px;
 }
 
+  #nation-scoreboard, #state-county-scoreboard {
+
+      table {
+        border-collapse: separate;
+        border-spacing: 0px 8px;
+
+        margin: 0 auto;
+        table-layout: auto;
+        width: 90%;
+          td {
+            vertical-align: bottom;
+            line-height: 1.2;
+          }
+
+          td.val {
+            font-weight: 700;
+          }
+      }
+  }
+
+
 // select2
 
 #map-header > span > span.selection > span > ul > li > input {
@@ -1001,6 +1022,8 @@ ul li.select2-results__option {
   #mobile-nation-scoreboard {
     display: block;
   }
+
+
 
   #mobile-nation-scoreboard, #mobile-state-county-scoreboard {
     border-top: 1px solid #D2D2D2;
