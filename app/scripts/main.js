@@ -457,7 +457,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     countyName = '',
     countyScore = '';
 
-    var usNote = '<b>Source:</b> Tabulations of Urban Institute credit bureau data.<br><b>Notes:</b> Detailed race data is not available for communities that are too small. NA = Native American; AAPI = Asian American and Pacific Islander.',
+    var usNote = "<b>Source:</b> Tabulations of Urban Institute credit bureau data.<br><b>Notes:</b> Detailed race data is not available for communities that are too small. NA = Native American; AAPI = Asian American and Pacific Islander.",
     stateAndCountyNote = '<b>Note:</b> Detailed race data is not available for communities that are too small.'
 
     if ( GEOG_LEVEL === 'state' ){
@@ -1188,15 +1188,16 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
       selection.append('rect')
         .attr('width', lineChartWidth / dataMonths.length)
-        .attr('height', 28) // text y + dy
+        .attr('height', lineChartHeight + 28) // text y + dy
         .attr('fill', '#FFFFFF')
         .attr('fill-opacity', 0)
         .attr('class', 'click-catcher')
         .attr('x', ( (lineChartWidth / dataMonths.length) / 2 ) * -1)
+        .attr('y', -lineChartHeight)
     })
 
     var num = dataMonths.indexOf(SELECTED_MONTH) + 2
-    d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + num + ')').classed('selected',true)
+    d3.select("div.state-lines > svg > g > g.x-axis > g:nth-child(" + num + ")").classed('selected',true)
 
     lineYAxis.selectAll('.tick text').attr('x', -15).attr('dy', 14)
     lineYAxis.selectAll('.tick line').attr('x1', -lineMargin.left )
@@ -1286,7 +1287,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
           var num = dataMonths.indexOf(SELECTED_MONTH) + 2
           //show selected month as selected on the axis
-          d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + num + ')').classed('selected',true)
+          d3.select("div.state-lines > svg > g > g.x-axis > g:nth-child(" + num + ")").classed('selected',true)
 
           lineXAxis.selectAll('.tick').on('click', function(tick){
             //click changes the date
@@ -1314,8 +1315,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           lineXAxis.selectAll('.tick').on('click', function(tick){
             //click changes the date
             SELECTED_MONTH = d3.timeFormat('%-m/%-d/%Y')(tick)
-            prepareDataAndUpdateMap();
-            updateTitles();
 
             $('#vertical-timeline > g.clicked').attr('class','unclicked')
             d3.select('#vertical-timeline > g[data-month=\'' + SELECTED_MONTH + '\']').classed('clicked', true)
@@ -1326,6 +1325,9 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
             d3.selectAll('.dot')
               .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 } })
               .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
+
+            prepareDataAndUpdateMap();
+            updateTitles();
 
           }).on('mouseenter', function(tick){
                 //hover temporarily changes the date and puts a tooltip over the topmost datapoint at that year
@@ -1345,10 +1347,10 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
             //get the position of this month on the x-axis of the line chart
             var tickNum = dataMonths.indexOf(SELECTED_MONTH) + 2,
-              tooltipOffset = $('div.state-lines > svg > g > g.x-axis > g:nth-child(' + tickNum + ')').offset().left
+              tooltipOffset = $("div.state-lines > svg > g > g.x-axis > g:nth-child(" + tickNum + ")").offset().left
             //place the tooltip
             template
-              .style('left', tooltipOffset - (template.node().getBoundingClientRect().width / 2) + 28 + 'px')
+              .style('left', tooltipOffset - (template.node().getBoundingClientRect().width / 2) + 30 + 'px')
               .style('top', $('.data-line').offset().top - template.node().getBoundingClientRect().height - scoocher + 'px')
               .style('opacity', 1)
 
@@ -1360,8 +1362,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
               SELECTED_MONTH = d3.timeFormat('%-m/%-d/%Y')(tick)
               //be sure it's not also classed 'unclicked'
               d3.select('#vertical-timeline > g[data-month=\'' + SELECTED_MONTH + '\']').classed('unclicked', false)
-            //add clicked to the selected month
-            d3.select('#vertical-timeline > g[data-month=\'' + SELECTED_MONTH + '\']').classed('clicked', true)
+              //add clicked to the selected month
+              d3.select('#vertical-timeline > g[data-month=\'' + SELECTED_MONTH + '\']').classed('clicked', true)
             }
             //take the temporary highlight off the vertical timeline
             d3.selectAll('#vertical-timeline > g').classed('moused', false)
@@ -1370,7 +1372,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
             //control which tick on the line chart is selected
             d3.selectAll('.tick').classed('selected', false)
             var num = dataMonths.indexOf(SELECTED_MONTH) + 2
-            d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + num + ')').classed('selected',true)
+            d3.select("div.state-lines > svg > g > g.x-axis > g:nth-child(" + num + ")").classed('selected',true)
             //change which line markers are highlighted
             d3.selectAll('.dot')
               .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 } })
