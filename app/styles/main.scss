@@ -201,8 +201,8 @@ ul {
   #policy-actions, #findings {
     ul {
       margin-bottom: 50px;
-      margin-top: 50px;
-       list-style-type: disc;
+      margin-top: 10px;
+      list-style-type: disc;
       li {
         display: list-item;
         font-size: 18px;
@@ -221,24 +221,33 @@ ul {
     cursor: pointer;
     font-weight: 700;
     margin-bottom: 10px;
-    text-align: right;
-      span {
-        color: $cyan;
+
+      svg {
+        fill: $cyan;
         padding-left: 3px;
+        width: 14px;
       }
   }
 
   .see-more-btn.see-less {
-    margin-top: -20px;
+    margin-bottom: 15px;
+
+      svg {
+        path.vertical {
+          display: none;
+        }
+      }
   }
 
   .see-more-container {
     display: none;
     font-size: 20px;
-    margin-bottom: 40px;
+
+
   }
 
 }
+
 
 .clear {
    content: "";
@@ -344,6 +353,9 @@ g.grid > g:nth-child(2) > text {
   cursor: pointer;
   font-family: "Lato", sans-serif;
   font-weight: 400;
+    text {
+      font-size: 12px;
+    }
 }
 
 .tick.selected {
@@ -385,7 +397,7 @@ svg > g > g.grid > g:nth-child(2) > line {
 
 #map-container {
   display: inline-block;
-  margin-right: 3%;
+  margin-right: 2%;
   width: 52%;
   // width: calc(60% - #{$timeline-width});
 
@@ -404,9 +416,11 @@ svg > g > g.grid > g:nth-child(2) > line {
       overflow: hidden; //for IE
     }
 
+
     p.chart-note {
-      margin-top: -30px;
+      margin-top: 0;
     }
+
 }
 
 .counties.selected {
@@ -482,22 +496,20 @@ h3#measure-menu-title {
 
 // bad names, this is the map's legend
 #legend-container {
-  background-color: rgba(255,255,255,0.6);
   display: inline-block;
-  left: 10px;
-  margin-bottom: -70px;
-  position: relative;
-  top: -70px;
+
 
     ul#legend {
+      margin: 8px 0;
+      li:first-of-type {
+        margin-left: 0;
+      }
       li {
         margin-left: 15px;
         padding-left: 8px;
       }
-      li:last-of-type {
-        margin-right: 15px;
-      }
     }
+
 }
 
 ul#readout {
@@ -773,6 +785,7 @@ ul.us-legend {
   width: 310px;
 }
 
+
 #dropdown-button {
   background-color: #FDD870;
   width: 395px;
@@ -877,17 +890,17 @@ ul li.select2-results__option {
 
 
 .share-wrapper {
-  position: relative;
+  // position: relative;
 }
 
 #share-tooltip {
   background: #ffffff;
-  bottom: 30px;
+  // bottom: 60px;
   display: none;
   border: 1px solid #d2d2d2;
-  height: 90px;
+  height: 95px;
   position: absolute;
-  right: 25px;
+  // right: 95px;
   width: 320px;
 
   .copy-button {
@@ -1116,6 +1129,8 @@ ul li.select2-results__option {
 
 
   .ui-selectmenu-button.ui-button {
+    background: url(../images/blue-dropdown-bg.png) no-repeat right #ffffff;
+    background-size: 30px 20px;
     width: 100%;
   }
 

@@ -155,8 +155,12 @@ function getShareUrl(){
 
 console.log(shareURL)
 
+  var leftOffset = $('#shareUrlBtn').offset().left - 50,
+    topOffset = $('#shareUrlBtn').offset().top - 120
+
   d3.select('#share-tooltip > input').attr('value', shareURL)
-  d3.select('#share-tooltip').style('display','block')
+  d3.select('#share-tooltip').style('display','block').style('top', topOffset + 'px').style('left', leftOffset + 'px')
+
 
   d3.selectAll('.copy-button').on('click', function(){
     d3.event.stopPropagation();

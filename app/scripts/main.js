@@ -43,6 +43,7 @@ var usMap = d3.select('svg.map')
 
 var mobileShrinkAmt = IS_MOBILE ? 40 : 0
 
+// height 380 width 335
 var lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')) - mobileShrinkAmt,
     lineChartRatio = .631,
     lineChartDivHeight = lineChartDivWidth * lineChartRatio;
@@ -448,13 +449,12 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     if (d3.select(this).classed('see-less')){
       $('#' + div).css('display', 'none')
       $(this).removeClass('see-less')
-      $(this).html('MORE <span>+</span>')
+      $(this).children('span').text('MORE')
     } else {
       $('#' + div).css('display', 'inline-block')
-          $(this).html('LESS <span>-</span>')
-    $(this).addClass('see-less')
+      $(this).children('span').text('LESS')
+      $(this).addClass('see-less')
     }
-
   })
 
   $('#shareUrlBtn').on('click', function(evt){
@@ -471,8 +471,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     countyName = '',
     countyScore = '';
 
-    var usNote = '<b>Source:</b> Tabulations of Urban Institute credit bureau data.<br><b>Notes:</b> Detailed race data is not available for communities that are too small. NA = Native American; AAPI = Asian American and Pacific Islander.',
-    stateAndCountyNote = '<b>Note:</b> Detailed race data is not available for communities that are too small.'
+    var usNote = '<b>Source:</b> Tabulations of Urban Institute credit bureau data.<br><b>Notes:</b> Communities of color are based on credit records for people who live in zip codes where more than 60 percent of residents identified as people of color (Black, Hispanic, Native American, another race other than white, or multiracial). In the same way, majority-white, Black, Hispanic, and Native communities are zip codes where more than 60 percent of residents identified as the respective racial or ethnic group.',
+    stateAndCountyNote = '<b>Notes:</b> Detailed race data are not available for communities that are too small. NA = Native American.'
 
     if ( GEOG_LEVEL === 'state' ){
       placeName = stateNameLookup[SELECTED_STATE]
@@ -586,6 +586,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     .attr('class', function(d){ return 'counties c' + d.id })
     .attr('d', path)
     .attr('stroke', 'white')
+    .attr('stroke-width', 0.5)
     .on('click', getPlaceFromMap)
     .on('mouseover', function(d){
       var placeHasNoData = checkForData(d)
@@ -691,6 +692,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   }
 
   function updateLegend(breaks){
+
     //the map legend
     d3.select('#legend').selectAll('li').remove()
     d3.select('#legend').selectAll('li')
@@ -708,6 +710,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         }
       })
       .style('border-left', function(d){ return '20px solid' + clusterScale(d) })
+    //add a box for NA
+    d3.select('#legend').append('li').text('NA').style('border-left', '20px solid #d2d2d2')
   }
 
   var tagScootch =
@@ -827,10 +831,11 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
   function filterSearchOptionsToState(){
 
-    var stateFips = nameFips[SELECTED_STATE];
-    var filteredOptions = autocompleteSrc.filter(function(d){
-        return d.id.substring(0,2) === stateFips
-    })
+    // var stateFips = nameFips[SELECTED_STATE];
+    // var filteredOptions = autocompleteSrc.filter(function(d){
+    //     return d.id.substring(0,2) === stateFips
+    // })
+      var counties = countiesData.filter(function(d){ return d.date === SELECTED_MONTH && !isNaN(+d[SELECTED_CAT]) && d.place.substring(0,2) === nameFips[SELECTED_STATE] })
 
     //TODO remove counties with no data
     //I need county names from them, my list isn't matching up correctly
@@ -849,7 +854,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     // }
 
     $('.stateCountySearch').empty().select2({
-      data: filteredOptions,
+      data: counties,
       multiple: true,
       maximumSelectionLength: 2
     })
@@ -937,7 +942,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         if ( newMax > max ) { max = newMax }
       })
 
-      y.domain([0,max * domainInflater ])
+      y.domain([ 0, max * domainInflater ])
     }
   }
 
@@ -1197,12 +1202,12 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         .text('2020')
         .attr('class', 'year-label')
         .attr('dy',3)
-        .attr('y',25)
+        .attr('y',27)
         .attr('fill','#000000')
 
       selection.append('rect')
         .attr('width', lineChartWidth / dataMonths.length)
-        .attr('height', lineChartHeight + 28) // text y + dy
+        .attr('height', lineChartHeight + 31) // text y + dy
         .attr('fill', '#FFFFFF')
         .attr('fill-opacity', 0)
         .attr('class', 'click-catcher')
@@ -1213,7 +1218,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     var gPosition = dataMonths.indexOf(SELECTED_MONTH) + 2
     d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + gPosition + ')').classed('selected',true)
 
-    lineYAxis.selectAll('.tick text').attr('x', -15).attr('dy', 14)
+    lineYAxis.selectAll('.tick text').attr('x', -13).attr('dy', 14)
     lineYAxis.selectAll('.tick line').attr('x1', -lineMargin.left )
 
     //sort data so the highest value is first, this allows positioning the tooltip right over the top line
@@ -1330,8 +1335,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
             //click changes the date
             SELECTED_MONTH = d3.timeFormat('%-m/%-d/%Y')(tick)
 
-            $('#vertical-timeline > g.clicked').classed('clicked', false).classed('unclicked', true)
-            d3.select('#vertical-timeline > g[data-month=\'' + SELECTED_MONTH + '\']').classed('clicked', true)
+            d3.select('#vertical-timeline > g.clicked').classed('clicked', false).classed('unclicked', true)
+            d3.select('#vertical-timeline > g[data-month=\'' + SELECTED_MONTH + '\']').classed('clicked', true).classed('unclicked', false)
 
             d3.selectAll('.tick').classed('selected', false)
             d3.select(this).classed('selected', true)
@@ -1369,7 +1374,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
               tooltipOffset = $('div.state-lines > svg > g > g.x-axis > g:nth-child(' + tickNum + ')').offset().left
             //place the tooltip
             template
-              .style('left', tooltipOffset - (template.node().getBoundingClientRect().width / 2) + 30 + 'px')
+              .style('left', tooltipOffset - (template.node().getBoundingClientRect().width / 2) + 29 + 'px')
               .style('top', $('.data-line').offset().top - template.node().getBoundingClientRect().height - scoocher + 'px')
               .style('opacity', 1)
 
@@ -1444,7 +1449,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       return d3.select(tick).append('text')
         .text('2020')
         .attr('dy',3)
-        .attr('y',25)
+        .attr('y',27)
         .attr('fill','#000000')
       })
 
