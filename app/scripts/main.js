@@ -48,7 +48,7 @@ var lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('wid
     lineChartRatio = .631,
     lineChartDivHeight = lineChartDivWidth * lineChartRatio;
 
-var lineMargin = {top: 0, right: 15, bottom: 33, left: 45},
+var lineMargin = {top: 0, right: 25, bottom: 33, left: 45},
     lineChartWidth = lineChartDivWidth - lineMargin.left - lineMargin.right,
     lineChartHeight = lineChartDivHeight - lineMargin.top - lineMargin.bottom //starting guess
 
@@ -57,6 +57,8 @@ var lineChartSvg = d3.select('.state-lines').append('svg')
     .attr('height', lineChartHeight + lineMargin.top + lineMargin.bottom)
 .append('g')
     .attr('transform', 'translate(' + lineMargin.left + ',' + lineMargin.top + ')')
+
+var axisTickExtender = 20
 
 var lineYAxis = lineChartSvg.append('g')
   .attr('class', 'grid')
@@ -77,7 +79,7 @@ var xAxis = d3.axisBottom(x)
   .tickValues(tickValues)
 
 var yAxis = d3.axisLeft(y)
-  .tickSize(-lineChartWidth)
+  .tickSize(-lineChartWidth - axisTickExtender )
   .ticks(4)
   .tickFormat(function(d, i) {
     //seems like formatScore() should work here, but I must be doing it wrong so for now...
@@ -114,7 +116,7 @@ var xLilChart = d3.scaleTime()
 
 var yLilChart = d3.scaleLinear()
   .range([lilChartHeight, 0])
-  .domain([300, 850])//researchers say 300 to 850, but it's really hard to see what you're looking at then
+  .domain([550, 750])//researchers agreed to shrink the domain
 
 var lineLilChart = d3.line().x(function(d){ return xLilChart(parseTime(d.date)) })
   .y(function(d){ return yLilChart(+d.value) })
@@ -135,7 +137,7 @@ var xAxisLilChart = d3.axisBottom(xLilChart)
   .tickValues(tickValues)
 
 var yAxisLilChart = d3.axisLeft(yLilChart)
-  .tickSize(-lilChartWidth)
+  .tickSize(-lilChartWidth - axisTickExtender)
   .ticks(4)
 
 var colorScheme = {
@@ -145,7 +147,7 @@ var colorScheme = {
     'bla': '#1696D2', //cyan
     'lat': '#EC008B', //magenta
     'api': '#0A4C6A', //navy
-    'nat': '#D2D2D2'
+    'nat': '#9D9D9D'
   },
   'state': {
     'all': '#FDBF11', //yellow
@@ -357,8 +359,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       $('.stateCountySearch').empty().select2({
           data: autocompleteSrc,
           placeholder: 'Search for your state or county',
-          multiple: true,
-          maximumSelectionLength: 2
+          multiple: true
       });
   })
 
@@ -524,7 +525,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     $('.title-measure-name').text(capFirstLetter(shortMeasureName))
     $('.map-title-date').text(monthYear)
     $('.line-title-name').text(placeName)
-    $('#line-chart-container > p.chart-note').html(note)
+    // $('#line-chart-container > p.chart-note').html(note) // 2/17: We think we're taking this out but not sure
 
   }
 
@@ -831,11 +832,11 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
   function filterSearchOptionsToState(){
 
-    // var stateFips = nameFips[SELECTED_STATE];
-    // var filteredOptions = autocompleteSrc.filter(function(d){
-    //     return d.id.substring(0,2) === stateFips
-    // })
-      var counties = countiesData.filter(function(d){ return d.date === SELECTED_MONTH && !isNaN(+d[SELECTED_CAT]) && d.place.substring(0,2) === nameFips[SELECTED_STATE] })
+    var stateFips = nameFips[SELECTED_STATE];
+    var filteredOptions = autocompleteSrc.filter(function(d){
+        return d.id.substring(0,2) === stateFips
+    })
+      // var counties = countiesData.filter(function(d){ return d.date === SELECTED_MONTH && !isNaN(+d[SELECTED_CAT]) && d.place.substring(0,2) === nameFips[SELECTED_STATE] })
 
     //TODO remove counties with no data
     //I need county names from them, my list isn't matching up correctly
@@ -854,9 +855,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     // }
 
     $('.stateCountySearch').empty().select2({
-      data: counties,
-      multiple: true,
-      maximumSelectionLength: 2
+      data: filteredOptions,
+      multiple: true
     })
   }
 
@@ -907,6 +907,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           }
 
           d3.selectAll('.state-outlines').attr('stroke', '#FFFFFF').attr('stroke-width', 2)
+          d3.selectAll('.counties').attr('stroke-width', 1)
           var stateClass = SELECTED_STATE.toLowerCase(),
           stateOutline = d3.select('path.state-outlines.' + stateClass);
 
@@ -929,7 +930,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   //LINE CHARTS
   function setYDomain(data){
     if (SELECTED_CAT === 'median_credit_score_all'){
-      return y.domain([300,850])
+      return y.domain([550,750])
     } else {
       var domainInflater = 1.3
       var min = d3.min(data[0].values, function(d){ return d.value }),
@@ -1299,8 +1300,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         if (IS_MOBILE){
           var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard'),
           scoocher = 25
-          $('.mobile-chart-tooltip').css('display', 'none')
-          template.style('display', 'block')
+          // $('.mobile-chart-tooltip').css('display', 'none')
+          // template.style('display', 'block')
 
           fillTemplate(dotData)
 
@@ -1406,7 +1407,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   }
 
   function lilChartByRace(){
-
     var topicStub = 'median_credit_score_';
     //there is a coc in the data but we don't use it on this particular chart
     //deleting 'api' here by researcher request
@@ -1429,6 +1429,18 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         }
         nested[i].values.push(obj)
       })
+    }
+
+    var dotData = []
+    for (var i = 0; i < nested.length; i++){
+      for (var j = 0; j < nested[i].values.length; j++){
+        var obj = {
+          'date': nested[i].values[j].date,
+          'key': nested[i].key,
+          'value': nested[i].values[j].value
+        }
+        dotData.push(obj)
+      }
     }
 
     lilChartLine
@@ -1460,10 +1472,23 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         .attr('fill', 'none')
         .classed('line', true)
         .attr('stroke', function(d){ return colorScheme['nation'][d.key]})
-        .attr('stroke-width', 1.5)
+        .attr('stroke-width', 3)
         .attr('d', function(d){
           return lilChartLine(d.values)
         })
+
+    var markers = lilChartSvg.selectAll('.top-dot')
+      .data(dotData)
+
+    markers.enter()
+      .append('circle')
+      .attr('class', 'top-dot')
+      .attr('r', 2.5)
+      .attr('stroke', function(d){ return colorScheme['nation'][d.key] })
+      .attr('fill', function(d){ return colorScheme['nation'][d.key] })
+      .attr('stroke-width', 2)
+      .attr('cx', function(d){ return xLilChart(parseTime(d.date)) })
+      .attr('cy', function(d){ return yLilChart(d.value) })
   }
 
   //I'm the init
