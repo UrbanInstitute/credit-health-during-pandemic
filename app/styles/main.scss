@@ -335,9 +335,15 @@ ul {
   display: none;
 }
 
-.tick > line {
-  stroke: $gray-4;
-  display: none;
+.tick {
+  line {
+    stroke: $gray-4;
+    display: none;
+  }
+
+  rect.underscore {
+    fill-opacity: 0;
+  }
 }
 
 g.grid > g > line {
@@ -743,6 +749,7 @@ ul.us-legend {
 .timeline-tooltip {
   background-color: #FFFFFF;
   border: 1px solid #D2D2D2;
+  display: none;
   opacity: 0;
   padding: 10px;
   pointer-events: none;
@@ -989,12 +996,17 @@ ul li.select2-results__option {
 
 .state-lines {
   margin-bottom: 30px;
+
 }
 
 @media (max-width: 800px) {
 
-  .state-lines {
+.state-lines {
   margin-bottom: 0px;
+    svg {
+      position: relative;
+      z-index: 1;
+    }
 }
 
   p {
@@ -1059,7 +1071,11 @@ ul li.select2-results__option {
   #mobile-nation-scoreboard, #mobile-state-county-scoreboard {
     border-top: 1px solid #D2D2D2;
     border-bottom: 1px solid #D2D2D2;
+    margin-top: -17px;
     padding-bottom: 15px;
+    position: relative;
+    z-index: 0;
+
       table {
         border-collapse: separate;
         border-spacing: 0px 4px;
@@ -1143,8 +1159,20 @@ ul li.select2-results__option {
     width: 90%;
   }
 
-  .tick.selected > text {
+  .tick {
+    rect.underscore {
+      fill-opacity: 0;
+    }
+  }
+
+  .tick.selected {
+    text {
      fill: $cyan;
+    }
+
+    rect.underscore {
+      fill-opacity: 1;
+    }
   }
 
 

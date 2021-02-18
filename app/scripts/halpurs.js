@@ -158,6 +158,8 @@ console.log(shareURL)
   var leftOffset = $('#shareUrlBtn').offset().left - 50,
     topOffset = $('#shareUrlBtn').offset().top - 120
 
+  if (IS_MOBILE){ leftOffset = leftOffset + 33 }
+
   d3.select('#share-tooltip > input').attr('value', shareURL)
   d3.select('#share-tooltip').style('display','block').style('top', topOffset + 'px').style('left', leftOffset + 'px')
 

@@ -45,10 +45,10 @@ var mobileShrinkAmt = IS_MOBILE ? 40 : 0
 
 // height 380 width 335
 var lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')) - mobileShrinkAmt,
-    lineChartRatio = .631,
+    lineChartRatio = 200/276,//.631,
     lineChartDivHeight = lineChartDivWidth * lineChartRatio;
 
-var lineMargin = {top: 0, right: 25, bottom: 33, left: 45},
+var lineMargin = {top: 0, right: 25, bottom: 50, left: 45},
     lineChartWidth = lineChartDivWidth - lineMargin.left - lineMargin.right,
     lineChartHeight = lineChartDivHeight - lineMargin.top - lineMargin.bottom //starting guess
 
@@ -275,6 +275,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       }
     })
 
+    $('#mobile-county-dropdown-button').css('opacity', 0.5 )
+
     function makeCountyMenu(){
       var counties = countiesData.filter(function(d){ return d.date === SELECTED_MONTH && !isNaN(+d['subp_credit_coc']) && d.place.substring(0,2) === nameFips[SELECTED_STATE] })
       var stateFips = $('#mobile-state-dropdown').val();
@@ -288,6 +290,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         .text(function(d){ return countyMap.get(d.place).county })
         .attr('value', function(d){ return d.place })
       $('#mobile-county-dropdown').selectmenu('refresh')
+      $('#mobile-county-dropdown-button').css('opacity', 1)
     }
 
 
@@ -311,7 +314,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     if (removed.length > 2){
       GEOG_LEVEL = 'state'
       d3.selectAll('.counties').classed('selected', false)
-            $('#readout > li.county > span.place').text('')
+      $('#readout > li.county > span.place').text('')
       $('#readout > li.county > span.pct').text('')
       $('#readout > li').removeClass('mouse-mate')
       $('#readout > li.state').addClass('mouse-mate')
@@ -775,6 +778,10 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         goToState = placeId.substring(0,2);
         SELECTED_STATE = fipsNames[goToState]
         countyLineChart();
+
+              $('#readout > li').removeClass('mouse-mate')
+      $('#readout > li.county').addClass('mouse-mate')
+
         $('.stateCountySearch').val([SELECTED_COUNTY, goToState]).trigger('change')
         $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
       //input is state
@@ -860,27 +867,19 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
   function filterSearchOptionsToState(){
 
-    var stateFips = nameFips[SELECTED_STATE];
-    var filteredOptions = autocompleteSrc.filter(function(d){
-        return d.id.substring(0,2) === stateFips
+    var relevantCounties = countiesData.filter(function(d){
+      return d.date === SELECTED_MONTH &&
+      !isNaN(+d[SELECTED_CAT]) && d[SELECTED_CAT] !== '' && //some n/a* became "" in teh datasheet :()
+      d.place.substring(0,2) === nameFips[SELECTED_STATE]
     })
-      // var counties = countiesData.filter(function(d){ return d.date === SELECTED_MONTH && !isNaN(+d[SELECTED_CAT]) && d.place.substring(0,2) === nameFips[SELECTED_STATE] })
 
-    //TODO remove counties with no data
-    //I need county names from them, my list isn't matching up correctly
-
-    // var filteredOptions = []
-    // for ( var i = 0; i < autocompleteSrc.length; i++ ){
-    //   for ( var j = 0; j < countiesData.length; j++ ){
-    //     if ( autocompleteSrc[i].id === countiesData[j].place ){
-    //       if (countiesData[j].date === SELECTED_MONTH){
-    //         if (countiesData[j][SELECTED_CAT] !== "" && countiesData[j].place.substring(0,2) === stateFips){
-    //           filteredOptions.push(autocompleteSrc[i])
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+    // https://stackoverflow.com/questions/32965688/comparing-two-arrays-of-objects-and-exclude-the-elements-who-match-values-into
+    var filteredOptions = autocompleteSrc.filter(function (o1) {
+        return relevantCounties.some(function (o2) {
+            return o1.id === o2.place;
+       });
+    });
+    console.log(filteredOptions)
 
     $('.stateCountySearch').empty().select2({
       data: filteredOptions,
@@ -1242,6 +1241,15 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         .attr('class', 'click-catcher')
         .attr('x', ( (lineChartWidth / dataMonths.length) / 2 ) * -1)
         .attr('y', -lineChartHeight)
+
+      selection.append('rect')
+        .attr('width', lineChartWidth / dataMonths.length )
+        .attr('height', 2)
+        .attr('class', 'underscore')
+        .attr('fill', COLORS['urbanBlue'][1])
+        .attr('x', ( (lineChartWidth / dataMonths.length) / 2 ) * -1)
+        .attr('y', 40)
+
     })
 
     var gPosition = dataMonths.indexOf(SELECTED_MONTH) + 2
