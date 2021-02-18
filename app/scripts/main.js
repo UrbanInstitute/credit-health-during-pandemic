@@ -883,7 +883,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
     $('.stateCountySearch').empty().select2({
       data: filteredOptions,
-      multiple: true
+      multiple: true,
+      placeholder: 'Search for your state or county'
     })
   }
 
@@ -1234,7 +1235,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         .attr('fill','#000000')
 
       selection.append('rect')
-        .attr('width', lineChartWidth / dataMonths.length)
+        .attr('width', (lineChartWidth + lineMargin.left + lineMargin.right )/ dataMonths.length)
         .attr('height', lineChartHeight + 31) // text y + dy
         .attr('fill', '#FFFFFF')
         .attr('fill-opacity', 0)
@@ -1587,28 +1588,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         var countyPaths = usMap.selectAll('.counties')
           .classed('active', function(d){ return d === centered })
 
-        // Starting translate/scale
-        var t0 = projection.translate(),
-          s0 = projection.scale();
-
-        // Re-fit to destination
         projection.fitSize([mapWidth, mapHeight], centered || d);
 
-        // Create interpolators
-        // var interpolateTranslate = d3.interpolate(t0, projection.translate()),
-        //     interpolateScale = d3.interpolate(s0, projection.scale());
-
-        // var countyInterpolator = function(t) {
-        //   projection.scale(interpolateScale(t))
-        //     .translate(interpolateTranslate(t));
-        //   countyPaths.attr('d', path);
-        // };
-
-        // d3.transition()
-        //   .duration(0)
-        //   .tween('projection', function() {
-        //     return countyInterpolator;
-        //   })
       }
     } else {
       makeMobileMenu()
@@ -1617,53 +1598,37 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       scoocher = 25
 
       template.style('display', 'block')
-                    //fill out the template
-      // var mouseoverData = d3.nest().key(function(d){ return d.date }).entries(dotData),
-      //   thisMonth = mouseoverData[dataMonths.indexOf(SELECTED_MONTH)].values
 
-      // for (var j = 0; j < thisMonth.length; j++){
-      //   template.select('.' + thisMonth[j].key).text(thisMonth[j].value)
-      // }
-
-
-      lineYAxis.selectAll('.tick text').attr('x', -15).attr('dy', 14)
-      lineYAxis.selectAll('.tick line').attr('x1', -lineMargin.left )
+      // lineYAxis.selectAll('.tick text').attr('x', -15).attr('dy', 14)
+      // lineYAxis.selectAll('.tick line').attr('x1', -lineMargin.left )
     }
 
+//line
 
     lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')) - mobileShrinkAmt
     lineChartDivHeight = lineChartDivWidth * lineChartRatio
     lineChartWidth = lineChartDivWidth - lineMargin.left - lineMargin.right
     lineChartHeight = lineChartDivHeight - lineMargin.top - lineMargin.bottom
 
-    lineChartSvg
+    d3.select('.state-lines > svg')
       .attr('width', lineChartWidth + lineMargin.left + lineMargin.right)
       .attr('height', lineChartHeight + lineMargin.top + lineMargin.bottom);
 
     x.range([0, lineChartWidth])
-
     y.range([lineChartHeight, 0])
 
-  //   var lineYAxis = lineChartSvg.append('g')
-  // .attr('class', 'grid')
+    lineChartSvg.select('.x-axis')
+        .attr('transform', 'translate(0,' + lineChartHeight + ')')
+        .call(xAxis);
 
-    lineXAxis.attr('transform', 'translate(0,' + lineChartHeight + ')')
-
-    lineYAxis.call(yAxis);
-
-    lineXAxis.call(xAxis)
+    lineChartSvg.select('.grid')
+        .call(yAxis);
 
     lineChartSvg.selectAll('.data-line')
       .attr('d', function(d){ return line(d.values)  })
 
     lineChartSvg.selectAll('.dot')
       .transition()
-        .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 }} )
-        .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
-        .attr('stroke', function(d){
-          return colorScheme[GEOG_LEVEL][d.key]
-        })
-        .attr('stroke-width', 2)
         .attr('cx', function(d){
           if (isNaN(d.value)){
             return
@@ -1676,25 +1641,34 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           } else {
            return y(d.value) }
         })
+//lil
 
     lilChartDivWidth = parseInt(d3.select('#median-credit-and-race-chart').style('width'))
     lilChartDivHeight = lilChartDivWidth * lilChartAspectRatio
     lilChartWidth = lilChartDivWidth - lilChartMargin.left - lilChartMargin.right
     lilChartHeight = lilChartDivHeight - lilChartMargin.top - lilChartMargin.bottom
 
-   lilChartSvg
+   d3.select('#median-credit-and-race-chart > svg')
     .attr('width', lilChartWidth + lilChartMargin.left + lilChartMargin.right)
     .attr('height', lilChartHeight + lilChartMargin.top + lilChartMargin.bottom)
-
 
     xLilChart.range([0, lilChartWidth])
     yLilChart.range([lilChartHeight, 0])
 
-    lilChartYAxisG.call(yAxisLilChart)
-    lilChartXAxisG.call(xAxisLilChart)
+    lilChartSvg.select('.x-axis')
+      .attr('transform', 'translate(0,' + lilChartHeight + ')')
+      .call(xAxisLilChart);
+
+    lilChartSvg.select('.grid')
+        .call(yAxisLilChart);
 
     lilChartSvg.selectAll('.line')
       .attr('d', function(d){ return lilChartLine(d.values) })
+
+    lilChartSvg.selectAll('.top-dot')
+      .transition()
+      .attr('cx', function(d){ return xLilChart(parseTime(d.date)) })
+      .attr('cy', function(d){ return yLilChart(d.value) })
 
     $('#line-chart-container').css('margin-top', $('#map-header').outerHeight() + 10)
     $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)

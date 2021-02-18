@@ -122,7 +122,7 @@ function getQueryParam(param,fallback, validOpts) {
 // https://github.com/UrbanInstitute/college-racial-representation/blob/master/app/scripts/halpurs.js
 function getShareUrl(){
   //the base url (localhost in dev, staging/prop when live) including protocol (https://) and full path
-  var shareURL = window.location.origin + window.location.pathname
+  var shareURL = window.location.origin + window.location.pathname 
 
   //not the cleanest, since the default values are also included in the first few lines of main.js
   //(the calls to getQueryParam) but I don't mind if you don't
@@ -149,11 +149,11 @@ function getShareUrl(){
         else shareURL += '&'
           if (param === 'month'){ val = encodeURIComponent(val) }
         //add key/value pair to URL
-        shareURL += param + '=' + val
+        shareURL += param + '=' + val 
       }
   }
 
-console.log(shareURL)
+  // shareURL += '#main-viz-container'
 
   var leftOffset = $('#shareUrlBtn').offset().left - 50,
     topOffset = $('#shareUrlBtn').offset().top - 120

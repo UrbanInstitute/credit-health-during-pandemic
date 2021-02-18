@@ -363,6 +363,14 @@ g.grid > g:nth-child(2) > text {
     }
 }
 
+  // rect.click-catcher {
+  //   stroke: red;
+  //   fill: none;
+  //   stroke-width: 1px;
+  //   fill-opacity: 1;
+  // }
+
+
 .tick.selected {
   font-weight: 700;
 }
@@ -439,6 +447,11 @@ svg > g > g.grid > g:nth-child(2) > line {
 
 
 
+#median-credit-and-race-chart {
+  margin-top: 15px;
+}
+
+
 h3#measure-menu-title {
   font-size: 22px;
   font-weight: 700;
@@ -454,7 +467,7 @@ h3#measure-menu-title {
       line-height: 1.3;
       font-size: 18px;
       font-weight: 700;
-      margin: 0;
+      margin: 0 0 8px 0;
     }
 }
 
@@ -465,9 +478,10 @@ h3#measure-menu-title {
   margin-bottom: 20px;
   width: 52.6%;
     h3 {
-      margin: 0;
+      margin: 0 0 8px 0;
       font-size: 18px;
       font-weight: 700;
+      line-height: 1.3;
     }
 
     p {
@@ -836,7 +850,9 @@ ul.us-legend {
 
 // select2
 
+
 #map-header > span > span.selection > span > ul > li > input {
+  background: url(../images/search-icon.png) no-repeat right #ffffff;
   font-family: Lato;
   font-size: 18px;
 }
@@ -1004,13 +1020,15 @@ ul li.select2-results__option {
 
 @media (max-width: 800px) {
 
-.state-lines {
-  margin-bottom: 0px;
-    svg {
-      position: relative;
-      z-index: 1;
-    }
-}
+
+
+  .state-lines {
+    margin-bottom: 0px;
+      svg {
+        position: relative;
+        z-index: 1;
+      }
+  }
 
   p {
     font-size: 18px;
@@ -1023,6 +1041,10 @@ ul li.select2-results__option {
     font-weight: 400;
     margin: 0;
     text-align: left;
+  }
+
+  .button {
+    margin-bottom: 0;
   }
 
   #dropdown-button {
@@ -1038,7 +1060,7 @@ ul li.select2-results__option {
 
   #line-chart-container {
     display: block;
-    float: none;
+    // float: none;
     margin: 0 auto;
     width: 100%;
 
@@ -1160,6 +1182,11 @@ ul li.select2-results__option {
   .text-wrapper {
     margin-bottom: 40px;
     width: 90%;
+  }
+
+  .text-wrapper.below-map {
+    padding: 0;
+    margin: 80px auto;
   }
 
   .tick {
