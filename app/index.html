@@ -4,7 +4,17 @@
     <meta charset="utf-8">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-<!--     <meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@urbaninstitute"><meta name="twitter:creator" content="@urbaninstitute"><meta name="twitter:title" content="Building a State Financial Aid Program"><meta name="twitter:description" content="What Are the Trade-Offs of Different Design Choices?"><meta name="twitter:image" content="https://apps.urban.org/features/how-to-build-a-state-financial-aid-program/images/twitter.jpg"><meta property="og:title" content="Building a State Financial Aid Program" /><meta property="og:description" content="What Are the Trade-Offs of Different Design Choices?" /><meta property="og:image" content="https://apps.urban.org/features/how-to-build-a-state-financial-aid-program/images/facebook.jpg" /><meta property="og:image:type" content="image/png"><meta property="og:url" content="http://urbn.is/stateaid"> -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@urbaninstitute">
+    <meta name="twitter:creator" content="@urbaninstitute">
+    <meta name="twitter:title" content="Credit Health during the COVID-19 Pandemic">
+    <meta name="twitter:description" content="How is your community faring on credit health measures?">
+    <meta name="twitter:image" content="https://apps.urban.org/features/credit-health-during-pandemic/images/twitter-final.jpg">
+    <meta property="og:title" content="Credit Health during the COVID-19 Pandemic" />
+    <meta property="og:description" content="How is your community faring on credit health measures?" />
+    <meta property="og:image" content="https://apps.urban.org/features/credit-health-during-pandemic/images/twitter-final.jpg" />
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:url" content="http://urbn.is/credit">
     <title>Credit Health during the COVID-19 Pandemic</title>
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <!-- Place favicon.ico in the root directory -->
@@ -14,8 +24,19 @@
     <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic,900" rel="stylesheet" type="text/css">
     <link rel="stylesheet" type="text/css" href="styles/jquery-ui.css">
 
-    <!-- <script type="application/ld+json">{ "@context": "http://schema.org", "@type": "NewsArticle", "headline": "Building a State Financial Aid Program", "url": "https://apps.urban.org/features/how-to-build-a-state-financial-aid-program", "thumbnailUrl": "https://apps.urban.org/features/how-to-build-a-state-financial-aid-program/images/social.png", "dateCreated": "2020-10-14T04:00:00.000Z", "articleSection": "Interactive Feature", "creator": ["Sandy Baum","Kristin Blagg","Macy Rainer","Allison Feldman","JoElla Carman","Serena Lei","David Hinson"], "keywords": ["Education and Training"] }</script> -->
-
+    <script type="application/ld+json">
+      {
+              "@context": "http://schema.org",
+              "@type": "NewsArticle",
+              "headline": "Credit Health during the COVID-19 Pandemic",
+              "url": "https://apps.urban.org/features/credit-health-during-pandemic",
+              "thumbnailUrl": "https://apps.urban.org/features/credit-health-during-pandemic/images/twitter-final.jpg",
+              "dateCreated": "2021-02-25T05:00:00.000Z",
+              "articleSection": "Interactive Feature",
+              "creator": ["Breno Braga","Caleb Quakenbush","Signe-Mary McKernan","Kassandra Martinchek","Alex Carther","Allison Feldman","JoElla Carman","Liza Hagerman","Laura Swanson"],
+              "keywords": ["Finance","Income and Wealth"]
+      }
+    </script>
     <!-- build:css styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
     <link href="node_modules/select2/dist/css/select2.min.css" rel="stylesheet" />
@@ -51,11 +72,11 @@
 
           <div class="shareThisW" id="shareBox">
             <div class="addthis_toolbox addthis_default_style  "addthis:title="" addthis:url="">
-              <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A//urbn.is/stateaid" target="_blank" class="addthis_button_facebook at300b" title="Facebook" onclick="toggle_visibility('shareBox');"><span class="at4-icon aticon-facebook" style="background-color: rgb(48, 88, 145);"><span class="at_a11y">Share on facebook</span></span></a>
+              <a href="https://www.facebook.com/sharer/sharer.php?u=http%3A//urbn.is/credit" target="_blank" class="addthis_button_facebook at300b" title="Facebook" onclick="toggle_visibility('shareBox');"><span class="at4-icon aticon-facebook" style="background-color: rgb(48, 88, 145);"><span class="at_a11y">Share on facebook</span></span></a>
 
-              <a href="https://twitter.com/intent/tweet?text=Building%20a%20State%20Financial%20Aid%20Program%3A%20What%20Are%20the%20Trade-Offs%20of%20Different%20Design%20Choices%3F%20(via%20%40urbaninstitute)%20http%3A%2F%2Furbn.is%2Fstateaid" target="_blank" class="addthis_button_twitter at300b" title="Tweet" onclick="toggle_visibility('shareBox');"><span class="at4-icon aticon-twitter" style="background-color: rgb(44, 168, 210);"><span class="at_a11y">Share on twitter</span></span></a>
+              <a href="https://twitter.com/intent/tweet?text=Credit%20health%20during%20the%20COVID-19%20pandemic%3A%20How%20is%20your%20community%20faring%3F%20(via%20%40urbaninstitute)%20http%3A%2F%2Furbn.is%2Fcredit" target="_blank" class="addthis_button_twitter at300b" title="Tweet" onclick="toggle_visibility('shareBox');"><span class="at4-icon aticon-twitter" style="background-color: rgb(44, 168, 210);"><span class="at_a11y">Share on twitter</span></span></a>
 
-              <a href="mailto:%20?Subject=New Urban Institute feature&amp;Body=Hi! I thought you'd be interested in this new feature from the Urban Institute: &quot;Building a State Financial Aid Program: What Are the Trade-Offs of Different Design Choices?&quot; http://urbn.is/stateaid" target="_blank" class="addthis_button_email at300b" target="_blank" title="Email" onclick="toggle_visibility('shareBox');"><span class="at4-icon aticon-email" style="background-color: rgb(115, 138, 141);"><span class="at_a11y">Share on email</span></span></a>
+              <a href="mailto:%20?Subject=New Urban Institute interactive&amp;Body=Hi! I thought you'd be interested in this new interactive from the Urban Institute: Credit Health during the COVID-19 Pandemic http://urbn.is/credit" target="_blank" class="addthis_button_email at300b" target="_blank" title="Email" onclick="toggle_visibility('shareBox');"><span class="at4-icon aticon-email" style="background-color: rgb(115, 138, 141);"><span class="at_a11y">Share on email</span></span></a>
               <div class="atclear"></div>
             </div>
           </div>
@@ -70,7 +91,7 @@
 
     <div class="text-wrapper">
       <div class="intro-text">
-        <h1>Credit health during the COVID-19 pandemic</h1>
+        <h1>Credit Health during the COVID-19 Pandemic</h1>
         <h2>How is your community faring on credit health measures?</h2>
         <p class="date-line">Month TK, 2021</p>
       </div>
@@ -266,10 +287,10 @@
         </div>
 
 
-<!--       <p class='chart-note mobile-wrapper'>
-        <b>Source:</b> Tabulations of Urban Institute credit bureau data.<br>
-        <b>Notes:</b> Communities of color are based on credit records for people who live in zip codes where more than 60 percent of residents identified as people of color (Black, Hispanic, Native American, another race other than white, or multiracial). In the same way, majority-white, Black, Hispanic, and Native communities are zip codes where more than 60 percent of residents identified as the respective racial or ethnic group.
-      </p> -->
+      <p class='chart-note mobile-wrapper'>
+         <b>Source:</b>Tabulations of Urban Institute credit bureau data.<br>
+          <b>Notes:</b> NA = "Not available." Data for this location are not available because the sample size is too small. Detailed race data are not available for communities that are too small. Communities of color are based on credit records for people in zip codes where more than 60 percent of residents identified as people of color. Majority-white, Black, Hispanic, and Native communities are zip codes where more than 60 percent of residents identified as the respective racial or ethnic group.
+      </p>
       <div id="shareUrlBtn" class='button'>SHARE CHART</div>
 
       <div class="share-wrapper">

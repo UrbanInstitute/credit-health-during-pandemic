@@ -494,6 +494,11 @@ h3#measure-menu-title {
 }
 
 
+.mobile-wrapper.chart-note {
+  display: none;
+}
+
+
 // bad names, this is the map's legend
 #legend-container {
   display: inline-block;
@@ -517,10 +522,15 @@ ul#readout {
   white-space: nowrap;
   li {
     font-size: 18px;
-    padding-right: 40px;
+    margin-right: 40px;
+    padding-bottom: 2px;
       span.pct {
         color: $cyan;
       }
+  }
+
+  li.mouse-mate {
+    border-bottom: 2px solid $yellow;
   }
 
 
@@ -1104,7 +1114,9 @@ ul li.select2-results__option {
   }
 
   .mobile-wrapper.chart-note {
+    display: inline-block;
     margin-top: 20px;
+    margin-left: 5%;
   }
 
 

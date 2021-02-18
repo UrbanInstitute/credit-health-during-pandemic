@@ -209,6 +209,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       var text
       if (IS_MOBILE){
         text = d.label.substring(0,d.label.length - 5).replace('afs', 'AFS')
+        text = text.toLowerCase()
+        text = text[0].toUpperCase() + text.substring(1)
       } else {
         text = d.label.substring(0,d.label.length - 5).toLowerCase().replace('afs', 'AFS')
       }
@@ -309,10 +311,14 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     if (removed.length > 2){
       GEOG_LEVEL = 'state'
       d3.selectAll('.counties').classed('selected', false)
+            $('#readout > li.county > span.place').text('')
+      $('#readout > li.county > span.pct').text('')
+      $('#readout > li').removeClass('mouse-mate')
+      $('#readout > li.state').addClass('mouse-mate')
       stateLineChart();
     } else {
       //removing a state also removes a county and resets teh whole thing, just like zoombtn
-            projection.fitExtent([[0,0],[mapWidth,mapHeight]], featureCollection)
+      projection.fitExtent([[0,0],[mapWidth,mapHeight]], featureCollection)
                // resize the map
       usMap.selectAll('.counties').attr('d', path);
       usMap.selectAll('.state-outlines').attr('d', path);
@@ -504,7 +510,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
       $('#readout > li.state > span.place').text(stateNameLookup[SELECTED_STATE])
       $('#readout > li.state > span.pct').text(formatScore(stateScore))
-      $('#readout > li.county > span.place').text(countyName)
+      $('#readout > li.county > span.place').text(countyName + ' County')
       $('#readout > li.county > span.pct').text(formatScore(countyScore))
 
     } else {
@@ -606,9 +612,16 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           var stateAbbrev = fipsNames[d.id]
           var data = statesData.filter(function(d){ return d.place === mousedState });
 
+          $('#readout > li.state').addClass('mouse-mate')
           $('#readout > li.state > span.place').text(stateNameLookup[mousedState])
           $('#readout > li.state > span.pct').text(formatScore(data[data.length - 1][SELECTED_CAT]) )
         } else {
+
+          if (GEOG_LEVEL === 'state'){
+            $('#readout > li.state').removeClass('mouse-mate')
+            $('#readout > li.county').addClass('mouse-mate')
+          }
+
           var mousedCounty = d3.select(this),
           mousedCountyId = d.id
 
@@ -643,13 +656,22 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
         d3.select('.counties.selected').moveToFront()
 
+        $('#readout > li.state').removeClass('mouse-mate')
         $('#readout > li.state > span.place').text('')
         $('#readout > li.state > span.pct').text('')
       } else {
         var mousedCounty = d3.select(this)
         mousedCounty.attr('stroke', '#FFFFFF').attr('stroke-width', 1)
 
-        if (SELECTED_COUNTY !== ''){
+        if (GEOG_LEVEL === 'state'){
+          $('#readout > li').removeClass('mouse-mate')
+          $('#readout > li.state').addClass('mouse-mate')
+        }
+
+          $('#readout > li.county > span.place').text('')
+          $('#readout > li.county > span.pct').text('')
+
+        if (SELECTED_COUNTY !== '' && GEOG_LEVEL === 'county'){
           var countyLabel = SELECTED_STATE === 'LA' ? ' Parish' : ' County',
           placeName = countyMap.get(SELECTED_COUNTY).county + countyLabel,
           score = countiesData.filter(function(d){
@@ -659,7 +681,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           })[0][SELECTED_CAT]
 
           $('#readout > li.county > span.place').text(placeName)
-          $('#readout > li.county > span.pct').text(score)
+          $('#readout > li.county > span.pct').text(formatScore(score))
         } else {
           $('#readout > li.county > span.place').text('')
           $('#readout > li.county > span.pct').text('')
@@ -803,6 +825,12 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         filterSearchOptionsToState();
         $('.stateCountySearch').val(stateFips).trigger('change')
       } else if ( GEOG_LEVEL === 'state' || GEOG_LEVEL === 'county' ){
+
+        //because this is also handling regular click event type stuff
+        $('#readout > li').removeClass('mouse-mate')
+                //because this is also handling regular click event type stuff
+        $('#readout > li.county').addClass('mouse-mate')
+
          //clicking on a different state from state GEOG_LEVEL
         if (fipsNames[stateFips] !== SELECTED_STATE){
           GEOG_LEVEL = 'state'
