@@ -288,7 +288,7 @@ ul {
 }
 
 .text-wrapper {
-  margin: 100px auto 100px auto;
+  margin: 100px auto;
   max-width: 1150px;
   padding-top: 20px;
   width: 80%;
@@ -365,6 +365,10 @@ g.grid > g:nth-child(2) > text {
 }
 
 .tick.selected {
+  font-weight: 700;
+}
+
+.tick.moused {
   font-weight: 700;
 }
 

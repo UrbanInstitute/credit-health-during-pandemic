@@ -481,7 +481,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     countyName = '',
     countyScore = '';
 
-    var usNote = '<b>Source:</b> Tabulations of Urban Institute credit bureau data.<br><b>Notes:</b> Communities of color are based on credit records for people who live in zip codes where more than 60 percent of residents identified as people of color (Black, Hispanic, Native American, another race other than white, or multiracial). In the same way, majority-white, Black, Hispanic, and Native communities are zip codes where more than 60 percent of residents identified as the respective racial or ethnic group.',
+    var usNote = '<b>Source:</b> Tabulations of Urban Institute credit bureau data.<br><b>Notes:</b> NA = “Not available.” Data for this location are not available because the sample size is too small. Detailed race data are not available for communities that are too small. See the “About the Data” section for an explanation of how we define communities of color and majority-white, Black, Hispanic, and Native communities.',
     stateAndCountyNote = '<b>Notes:</b> Detailed race data are not available for communities that are too small. NA = Native American.'
 
     if ( GEOG_LEVEL === 'state' ){
@@ -1391,8 +1391,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
             PREVIOUS_SELECTED_MONTH = SELECTED_MONTH
             SELECTED_MONTH = d3.timeFormat('%-m/%-d/%Y')(tick)
 
-            d3.selectAll('.tick').classed('selected', false)
-            d3.select(this).classed('selected', true)
+            d3.selectAll('.tick').classed('moused', false)
+            d3.select(this).classed('moused', true)
 
             //changing the time only changes which line marker is highlighted, it doesn't redraw the chart
             d3.selectAll('.dot')
@@ -1400,9 +1400,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
               .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
 
             d3.select('#vertical-timeline > g[data-month=\'' + SELECTED_MONTH + '\']').classed('moused', true)
-
-            d3.selectAll('.tick').classed('selected', false)
-            d3.select(this).classed('selected', true)
 
             fillTemplate(dotData)
 
@@ -1422,10 +1419,13 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
             template.style('opacity', 0)
             SELECTED_MONTH = PREVIOUS_SELECTED_MONTH
+            d3.selectAll('.tick').classed('moused', false)
             //if you're mousing out of something you just clicked on don't revert to PREVIOUS_SELECTED_MONTH
             if ( d3.select(this).classed('selected') ){
               SELECTED_MONTH = d3.timeFormat('%-m/%-d/%Y')(tick)
+
             }
+
 
             //take the temporary highlight off the vertical timeline
             d3.selectAll('#vertical-timeline > g.moused').classed('moused', false)
