@@ -1595,20 +1595,20 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         projection.fitSize([mapWidth, mapHeight], centered || d);
 
         // Create interpolators
-        var interpolateTranslate = d3.interpolate(t0, projection.translate()),
-            interpolateScale = d3.interpolate(s0, projection.scale());
+        // var interpolateTranslate = d3.interpolate(t0, projection.translate()),
+        //     interpolateScale = d3.interpolate(s0, projection.scale());
 
-        var countyInterpolator = function(t) {
-          projection.scale(interpolateScale(t))
-            .translate(interpolateTranslate(t));
-          countyPaths.attr('d', path);
-        };
+        // var countyInterpolator = function(t) {
+        //   projection.scale(interpolateScale(t))
+        //     .translate(interpolateTranslate(t));
+        //   countyPaths.attr('d', path);
+        // };
 
-        d3.transition()
-          .duration(0)
-          .tween('projection', function() {
-            return countyInterpolator;
-          })
+        // d3.transition()
+        //   .duration(0)
+        //   .tween('projection', function() {
+        //     return countyInterpolator;
+        //   })
       }
     } else {
       makeMobileMenu()
