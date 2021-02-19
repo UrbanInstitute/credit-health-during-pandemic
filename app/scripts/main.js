@@ -1274,7 +1274,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     var gPosition = dataMonths.indexOf(SELECTED_MONTH) + 2
     d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + gPosition + ')').classed('selected',true)
 
-    lineYAxis.selectAll('.tick text').attr('x', -13).attr('dy', 14)
+    lineYAxis.selectAll('.tick text').attr('x', -8).attr('dy', 14)
     lineYAxis.selectAll('.tick line').attr('x1', -lineMargin.left )
 
     //sort data so the highest value is first, this allows positioning the tooltip right over the top line
