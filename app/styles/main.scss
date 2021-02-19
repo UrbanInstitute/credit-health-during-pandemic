@@ -147,7 +147,7 @@ h2 {
 
 hr {
   border-color: #d2d2d2;
-  border-top: 1px;
+  border-top: 2px;
   margin: 0 0 80px 0;
 }
 
@@ -215,6 +215,10 @@ ul {
 
   p.first {
     margin: 18px 0 28px 0;
+  }
+
+  p.last {
+    padding-bottom: 20px;
   }
 
   .see-more-btn {
@@ -1024,8 +1028,6 @@ ul#line-legend {
 
 @media (max-width: 800px) {
 
-
-
   .state-lines {
     margin-bottom: 0px;
       svg {
@@ -1062,6 +1064,10 @@ ul#line-legend {
     width: 100%;
   }
 
+  // #line-legend {
+  //   margin-bottom: 15px;
+  // }
+
   #line-chart-container {
     display: block;
     // float: none;
@@ -1069,15 +1075,12 @@ ul#line-legend {
     width: 100%;
 
       h4.hed {
-        margin: 0 auto 10px 5%;
+        margin: 0 5% 10px 5%;
       }
 
       ul#line-legend {
         margin-left: 5%;
-
-
       }
-
 
       .state-lines {
         display: block;
