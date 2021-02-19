@@ -1065,17 +1065,19 @@ ul li.select2-results__option {
     width: 100%;
 
       h4.hed {
-        margin: 0 auto 10px auto;
-        width: 90%;
+        margin: 0 auto 10px 5%;
       }
 
       ul#line-legend {
         margin-left: 5%;
       }
 
+
       .state-lines {
-        margin-left: 5%;
+        display: block;
         margin-bottom: 5px;
+        margin-left: 5%;
+        width: 90%;
       }
 
 
@@ -1083,6 +1085,16 @@ ul li.select2-results__option {
 
   #main-viz-container {
     padding: 0;
+    // width: 90%;
+  }
+
+  #main-viz-container > div:nth-child(3) {
+    border-bottom: 1px solid #D2D2D2;
+    margin-bottom: 40px;
+  }
+
+  #main-viz-container > div.text-wrapper {
+    padding-top: 15px;
   }
 
   #map-container {
@@ -1139,10 +1151,7 @@ ul li.select2-results__option {
     padding: 1px 5%;
   }
 
-  #main-viz-container > div:nth-child(3) {
-    border-bottom: 1px solid #D2D2D2;
-    margin-bottom: 40px;
-  }
+
 
 
   .mobile-only {
@@ -1173,10 +1182,6 @@ ul li.select2-results__option {
 
   #svg-container {
     display: none;
-  }
-
-  #main-viz-container > div.text-wrapper {
-    padding-top: 15px;
   }
 
   .text-wrapper {

@@ -315,7 +315,6 @@ id,text
 10001,"Kent County, DE"
 10003,"New Castle County, DE"
 10005,"Sussex County, DE"
-11001,"District of Columbia County, DC"
 11031,"Montgomery County, DC"
 12001,"Alachua County, FL"
 12003,"Baker County, FL"
@@ -3149,6 +3148,7 @@ id,text
 08,Colorado
 09,Connecticut
 10,Delaware
+11,District of Columbia
 12,Florida
 13,Georgia
 15,Hawaii

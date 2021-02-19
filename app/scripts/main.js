@@ -41,10 +41,12 @@ var usMap = d3.select('svg.map')
               .attr('height', mapHeight + 'px')
               .attr('width', mapWidth + 'px');
 
-var mobileShrinkAmt = IS_MOBILE ? 40 : 0
+var mobileShrinkAmt = 0 //IS_MOBILE ? 80 : 0
 
 // height 380 width 335
-var lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')) - mobileShrinkAmt,
+var lineChartOuterDiv = IS_MOBILE ? '.state-lines' : '#line-chart-container'
+
+var lineChartDivWidth = parseFloat(d3.select(lineChartOuterDiv).style('width')) - mobileShrinkAmt,
     lineChartRatio = 200/276,//.631,
     lineChartDivHeight = lineChartDivWidth * lineChartRatio;
 
@@ -66,15 +68,15 @@ var lineYAxis = lineChartSvg.append('g')
 var lineXAxis = lineChartSvg.append('g')
       .attr('class','x-axis')
       .attr('transform', 'translate(0,' + (lineChartHeight + 3) + ')')
-
-var x = d3.scaleTime()
+    //the goog thinks they own 'x', so I had to change this
+var xScale = d3.scaleTime()
   .range([0, lineChartWidth])
   .domain([parseTime(dataMonths[0]), parseTime(dataMonths[dataMonths.length - 1])])
 
 var y = d3.scaleLinear()
   .range([lineChartHeight, 0])
 
-var xAxis = d3.axisBottom(x)
+var xAxis = d3.axisBottom(xScale)
   .tickFormat( function(d){ return d3.timeFormat('%b')(d) } )
   .tickValues(tickValues)
 
@@ -123,7 +125,6 @@ var lineLilChart = d3.line().x(function(d){ return xLilChart(parseTime(d.date)) 
   .defined(function(d){
     return !isNaN(d.value)
   })
-
 
 var lilChartYAxisG = lilChartSvg.append('g')
   .attr('class','grid')
@@ -498,6 +499,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
     } else if ( GEOG_LEVEL === 'county' ){
       countyName = countyMap.get(SELECTED_COUNTY).county
+      debugger
       placeName = countyName + ' County, ' + stateNameLookup[SELECTED_STATE]
       note = stateAndCountyNote
 
@@ -1212,7 +1214,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     }
 
     line
-      .x(function(d){ return x(parseTime(d.date)) })
+      .x(function(d){ return xScale(parseTime(d.date)) })
       .y(function(d){ return y(d.value) })
       .defined(function(d){
         return !isNaN(d.value)
@@ -1302,7 +1304,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           if (isNaN(d.value)){
             return
           } else {
-            return x(parseTime(d.date)) }
+            return xScale(parseTime(d.date)) }
           })
         .attr('cy', function(d){
           if (isNaN(d.value)){
@@ -1322,7 +1324,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           if (isNaN(d.value)){
             return
           } else {
-            return x(parseTime(d.date)) }
+            return xScale(parseTime(d.date)) }
           })
         .attr('cy', function(d){
           if (isNaN(d.value)){
@@ -1551,11 +1553,15 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
 
   d3.select(window).on('resize', resize);
+  var storedWidth = document.body.clientWidth;
 
   function resize(){
     IS_MOBILE = $(window).width() < 800 ? true : false;
+  if (storedWidth !== document.body.clientWidth){
+    console.log("diff")
 
     if (!IS_MOBILE){
+
       prepareDataAndUpdateMap();
       mapWidth = parseFloat(d3.select('#map-container').style('width'));
       mapWidth = mapWidth - margin.left - margin.right;
@@ -1576,7 +1582,14 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
                  // resize the map
         usMap.selectAll('.counties').attr('d', path);
         usMap.selectAll('.state-outlines').attr('d', path);
-      } else {
+
+      //the line chart's width is based on this container for large screens but the inner .state-lines container on
+      //small screens to allow the table beneath to be full width
+      lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')) - mobileShrinkAmt
+
+
+      // $('.mobile-chart-tooltip').css('display', 'none')
+    } else {
         var d = topojson.feature(us, us.objects.states).features.filter(function(s){ return s.id == nameFips[SELECTED_STATE]} )[0]
 
         //possible alternate way to go: https://bl.ocks.org/veltman/77679636739ea2fc6f0be1b4473cf03a
@@ -1591,6 +1604,13 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         projection.fitSize([mapWidth, mapHeight], centered || d);
 
       }
+
+
+      var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard'),
+
+      template.style('display', 'none')
+
+
     } else {
       makeMobileMenu()
 
@@ -1599,13 +1619,14 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
       template.style('display', 'block')
 
-      // lineYAxis.selectAll('.tick text').attr('x', -15).attr('dy', 14)
-      // lineYAxis.selectAll('.tick line').attr('x1', -lineMargin.left )
+      lineChartDivWidth = parseFloat(d3.select('.state-lines').style('width')) - mobileShrinkAmt
+
+      d3.selectAll('.tick > line').attr('x2', lineChartDivWidth)
+
     }
 
 //line
-
-    lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')) - mobileShrinkAmt
+      
     lineChartDivHeight = lineChartDivWidth * lineChartRatio
     lineChartWidth = lineChartDivWidth - lineMargin.left - lineMargin.right
     lineChartHeight = lineChartDivHeight - lineMargin.top - lineMargin.bottom
@@ -1614,14 +1635,14 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       .attr('width', lineChartWidth + lineMargin.left + lineMargin.right)
       .attr('height', lineChartHeight + lineMargin.top + lineMargin.bottom);
 
-    x.range([0, lineChartWidth])
+    xScale.range([0, lineChartWidth])
     y.range([lineChartHeight, 0])
 
-    lineChartSvg.select('.x-axis')
+    lineChartSvg.selectAll('.x-axis')
         .attr('transform', 'translate(0,' + lineChartHeight + ')')
         .call(xAxis);
 
-    lineChartSvg.select('.grid')
+    lineChartSvg.selectAll('.grid')
         .call(yAxis);
 
     lineChartSvg.selectAll('.data-line')
@@ -1633,7 +1654,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           if (isNaN(d.value)){
             return
           } else {
-            return x(parseTime(d.date)) }
+            return xScale(parseTime(d.date)) }
           })
         .attr('cy', function(d){
           if (isNaN(d.value)){
@@ -1674,6 +1695,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
 
   }
-
+}
 }
 
