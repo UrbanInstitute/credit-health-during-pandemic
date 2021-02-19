@@ -924,6 +924,10 @@ ul li.select2-results__option {
   display: block;
 }
 
+ul#line-legend {
+  cursor: pointer;
+}
+
 // TOOLTIPS
 
 
@@ -1070,6 +1074,8 @@ ul li.select2-results__option {
 
       ul#line-legend {
         margin-left: 5%;
+
+
       }
 
 

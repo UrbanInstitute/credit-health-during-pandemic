@@ -1150,7 +1150,23 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       .enter()
       .append('li')
       .attr('class', function(d){ return GEOG_LEVEL + d.key })
+      .attr('data-group', function(d){ return d.key })
       .html(function(d){ return '<div class=\'legend-dash\'></div>' + labels[GEOG_LEVEL][d.key] })
+      .on('mouseover', function(d){
+        d3.select('path.data-line.' + d.key).attr('stroke-width', 4).moveToFront()
+        d3.selectAll('circle.dot.' + d.key).attr('r',4).moveToFront()
+        // d3.select(this).style('font-weight', 700)
+        $(this).children('.legend-dash').css('border-top-width', '3px')
+      })
+      .on('mouseout', function(d){
+        d3.select('path.data-line.' + d.key).attr('stroke-width', 3)
+        d3.selectAll('circle.dot.' + d.key).attr('r',2.5)
+        d3.selectAll('.dot')
+          .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 } })
+          .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
+        // d3.select(this).style('font-weight', 400)
+        $(this).children('.legend-dash').css('border-top-width', '2px')
+      })
   }
 
 
@@ -1273,7 +1289,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       linePath.enter()
         .append('path')
         .attr('fill', 'none')
-        .attr('class', 'data-line')
+        .attr('class', function(d){ return 'data-line ' + d.key })
         .attr('data-label', function(d){ return d.key })
         .attr('stroke', function(d){
           return colorScheme[GEOG_LEVEL][d.key]
@@ -1289,11 +1305,11 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
       //add some circles
       var markers = lineChartSvg.selectAll('.dot')
-          .data(dotData)
+          .data(dotData, function(d){ return d.key })
 
       markers.enter()
         .append('circle')
-        .attr('class', 'dot')
+        .attr('class', function(d){ return 'dot ' + d.key})
         .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 }} )
         .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
         .attr('stroke', function(d){
@@ -1558,7 +1574,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   function resize(){
     IS_MOBILE = $(window).width() < 800 ? true : false;
   if (storedWidth !== document.body.clientWidth){
-    console.log("diff")
+    console.log('diff')
 
     if (!IS_MOBILE){
 
@@ -1606,7 +1622,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       }
 
 
-      var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard'),
+      var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard')
 
       template.style('display', 'none')
 
@@ -1619,14 +1635,14 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
       template.style('display', 'block')
 
-      lineChartDivWidth = parseFloat(d3.select('.state-lines').style('width')) - mobileShrinkAmt
+      lineChartDivWidth = parseFloat(d3.select('.state-lines').style('width'))
 
-      d3.selectAll('.tick > line').attr('x2', lineChartDivWidth)
+      d3.selectAll('.tick > line').attr('x2', lineChartDivWidth  )
 
     }
 
 //line
-      
+
     lineChartDivHeight = lineChartDivWidth * lineChartRatio
     lineChartWidth = lineChartDivWidth - lineMargin.left - lineMargin.right
     lineChartHeight = lineChartDivHeight - lineMargin.top - lineMargin.bottom
