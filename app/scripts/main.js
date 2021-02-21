@@ -1,4 +1,15 @@
 
+
+// IE
+if (window.NodeList && !NodeList.prototype.forEach) {
+    NodeList.prototype.forEach = function (callback, thisArg) {
+        thisArg = thisArg || window;
+        for (var i = 0; i < this.length; i++) {
+            callback.call(thisArg, this[i], i, this);
+        }
+    };
+}
+
 var SELECTED_CAT,
   SELECTED_MONTH,
   SELECTED_COUNTY,
@@ -9,7 +20,7 @@ var SELECTED_CAT,
   EXPANDED_DEMOS = ['all', 'whi', 'bla', 'lat', 'api', 'nat'],
   COUNTY_IDS;
 
-var IS_MOBILE = $(window).width() < 800 ? true : false;
+var IS_MOBILE = document.body.clientWidth < 800 ? true : false;
 
 var parseTime = d3.timeParse('%m/%d/%Y')
 
@@ -340,27 +351,9 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         }
 
       menuData = filteredMeasures
-
-       // var countyData = countiesData.filter(function(d){
-      //     return d.date === SELECTED_MONTH //TODO this should probably go thru all the months and not accept more than 2-3 NaNs ?
-      //   }).filter(function(d){
-      //       return d.place === placeId
-      //   })[0]
-      
-      // var allOptions = Object.keys(countyData).slice(2,countyData.length)
-      // var result = []
-      // for (var i = 0; i < allOptions.length; i++){
-      //   if ( countyData[allOptions[i]] !== "" && !isNaN(+countyData[allOptions[i]]) ){
-      //     result.push(allOptions[i])
-      //   }
-      // }
-
-      // var newMenuItems = MEASURE_MENU_ITEMS.filter(function(d){
-      //   return result.indexOf(d.value) > 0
-      // })
       
     }
-
+    //this measure is shared with mobile
     updateMeasureMenu(menuData)
 
   }
@@ -441,19 +434,23 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       change: function(evt,data){
         getPlaceFromTagLookup(evt);
         makeCountyMenu();
+
+        filterMeasures(data.item.value);
       }
     })
 
     $('#mobile-county-dropdown').selectmenu({
       change: function(evt,data){
         getPlaceFromTagLookup(evt);
+        filterMeasures(data.item.value);
       }
     })
 
     $('#mobile-county-dropdown-button').css('opacity', 0.5 )
 
     function makeCountyMenu(){
-      var counties = countiesData.filter(function(d){ return d.date === SELECTED_MONTH && !isNaN(+d[SELECTED_CAT]) && d[SELECTED_CAT] !== '' && d.place.substring(0,2) === nameFips[SELECTED_STATE] })
+      var counties = filterPlaces();
+
       var stateFips = $('#mobile-state-dropdown').val();
 
       d3.select('#mobile-county-dropdown').selectAll('option').remove();
@@ -462,8 +459,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         .data(counties)
         .enter()
         .append('option')
-        .text(function(d){ return countyMap.get(d.place).county })
-        .attr('value', function(d){ return d.place })
+        .text(function(d){ return d.text })
+        .attr('value', function(d){ return d.id })
       $('#mobile-county-dropdown').selectmenu('refresh')
       $('#mobile-county-dropdown-button').css('opacity', 1)
     }
@@ -920,7 +917,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         goToState = placeId
         stateLineChart();
         
-
         $('.stateCountySearch').empty().select2({
             data: filterPlaces(),
             placeholder: 'Search for your state or county',
@@ -928,7 +924,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
             maximumSelectionLength: 2
         });
 
-        $('.stateCountySearch').val([goToState]).trigger('change')
+        $('.stateCountySearch').val(goToState).trigger('change')
       }
 
 
@@ -964,18 +960,16 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       if ( GEOG_LEVEL === 'nation' ){
 
         GEOG_LEVEL = 'state'
-        $('.stateCountySearch').val([stateFips]).trigger('change')
+
         SELECTED_STATE = fipsNames[stateFips]
         moveMap(stateFips);
         stateLineChart();
 
-        $('.stateCountySearch').val([stateFips]).trigger('change')
 
       } else if ( GEOG_LEVEL === 'state' || GEOG_LEVEL === 'county' ){
 
         //because this is also handling regular click event type stuff
         $('#readout > li').removeClass('mouse-mate')
-                //because this is also handling regular click event type stuff
         $('#readout > li.county').addClass('mouse-mate')
 
          //clicking on a different state from state GEOG_LEVEL
@@ -988,7 +982,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
           moveMap(stateFips);
           stateLineChart();
-          $('.stateCountySearch').val([stateFips]).trigger('change')
         } else { //clicking twice on same state brings you to county level geo
           GEOG_LEVEL = 'county'
           SELECTED_COUNTY = evt.id
@@ -997,19 +990,26 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           mousedCounty.classed('selected', true)
           mousedCounty.moveToFront();
           countyLineChart();
-          $('.stateCountySearch').val([SELECTED_COUNTY, stateFips]).trigger('change')
+          
           $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
         }
       }
       filterMeasures(evt.id)
       updateTitles();
 
-            $('.stateCountySearch').empty().select2({
-          data: filterPlaces(),
-          placeholder: 'Search for your state or county',
-          multiple: true,
-          maximumSelectionLength: 2
+      $('.stateCountySearch').empty().select2({
+        data: filterPlaces(),
+        placeholder: 'Search for your state or county',
+        multiple: true,
+        maximumSelectionLength: 2
       });
+
+      if (GEOG_LEVEL === 'county'){
+        $('.stateCountySearch').val([SELECTED_COUNTY, stateFips]).trigger('change')
+        $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
+      } else {
+        $('.stateCountySearch').val(stateFips).trigger('change')
+      }
     }
   }
 
@@ -1017,9 +1017,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   function moveMap(stateFips){
 
       var d = topojson.feature(us, us.objects.states).features.filter(function(s){ return s.id == stateFips} )[0]
-
-      // maybe rethink this whole thing? the bostock way: https://observablehq.com/@d3/zoom-to-bounding-box
-      // challenge here is we have two maps at once, counties and states
 
       //zoomer from: https://bl.ocks.org/veltman/77679636739ea2fc6f0be1b4473cf03a
       centered = centered !== d && d;
@@ -1067,14 +1064,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
           stateOutline.attr('stroke', COLORS['yellow'][1]).attr('stroke-width', 4)
           stateOutline.moveToFront()
-
-          // usMap.append("path")
-          //   .datum(topojson.mesh(us, us.objects.states, function(d){ return d.id === stateFips }))
-          //   .attr("fill", "none")
-          //   .attr("stroke", COLORS.yellow[1])
-          //   .attr("class", 'state-outlines')
-          //   .attr("stroke-width", 5)
-          //   .attr("d", path)
 
           return statePaths.attr('d', path)
         });
@@ -1697,7 +1686,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     filterMeasures(SELECTED_COUNTY) //don't let a user pick a measure for which county has no data
     filterPlaces(); //the place menu needs to just have selected state's data-having counties
     $('.stateCountySearch').val(nameFips[SELECTED_STATE]).trigger('change')
-    $('.stateCountySearch').val(SELECTED_COUNTY).trigger('change')
+    $('.stateCountySearch').val([SELECTED_COUNTY, SELECTED_COUNTY.substring(0,2)]).trigger('change')
+    $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
   }
 
   $('#line-chart-container').css('margin-top', $('#map-header').outerHeight() + 10)

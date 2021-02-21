@@ -230,6 +230,7 @@ ul {
       svg {
         fill: $cyan;
         padding-left: 3px;
+        height: 14px;
         width: 14px;
       }
   }
@@ -283,6 +284,11 @@ ul {
   // max-width: 650px; <- I think this is the template small well
   max-width: 760px;
 
+}
+
+.small-well.intro {
+  border-top: 1px solid #D2D2D2;
+  padding-top: 50px;
 }
 
 
@@ -1050,6 +1056,7 @@ ul#line-legend {
   }
 
   hr {
+    display: block;
     margin-bottom: 40px;
   }
 
