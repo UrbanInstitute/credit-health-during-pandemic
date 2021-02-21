@@ -482,6 +482,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       $('#readout > li.state > span.place').text('')
       $('#readout > li.state > span.pct').text('')
       d3.selectAll('path.state-outlines').attr('stroke', '#FFFFFF').attr('stroke-width', 2)
+      d3.selectAll('.counties').attr('stroke-width', 0.5)
       d3.select('.counties.selected').classed('selected', false)
       usLineChart();
       updateTitles();
