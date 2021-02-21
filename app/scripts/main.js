@@ -197,13 +197,20 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     measure['demo'] = measure.value.substring(measure.value.length-3, measure.value.length)
   })
 
+  var nestedCountyData = d3.nest().key(function(d){ return d.place }).map(countiesData);
+
+  var MEASURE_MENU_ITEMS = dict.filter(function(measure){
+    return measure['demo'] === 'all'
+  })
+
 
 
   //UI STUFF
 
-  function makeMeasureMenu(data){
+  function updateMeasureMenu(data){
+      
     var menu = d3.select('#dropdown').selectAll('option')
-      .data(menuItems)
+      .data(data)
 
     menu.enter()
       .append('option')
@@ -234,41 +241,183 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       })
       .attr('value', function(d){ return d.value })
 
+    menu.exit().remove();
+
+    //make it a selectmenu and define events
+    $('#dropdown').selectmenu({
+      change: function (event, data){
+        SELECTED_CAT = this.value
+        var text = dict.filter(function(d){ return d.value === SELECTED_CAT })[0].label.split(',')[0]
+        d3.selectAll('.dek').text(text)
+        prepareDataAndUpdateMap();
+        updateTitles();
+
+        //change width of dropdown to fit new text
+        if (!IS_MOBILE){
+          $('#text-measurer').text(text)
+          var textWidth = $('#text-measurer').width()
+          $('.ui-selectmenu-text').css('width', textWidth + 5 + 'px')
+          $('#dropdown-button').css('width', textWidth + 50 + 'px')
+        }
+
+        $('.stateCountySearch').empty().select2({
+            data: filterPlaces(),
+            placeholder: 'Search for your state or county',
+            multiple: true,
+            maximumSelectionLength: 2
+        });
+
+        if ( GEOG_LEVEL === 'nation' ){
+          usLineChart();
+        } else if ( GEOG_LEVEL === 'state' ){
+          stateLineChart();
+        } else {
+          countyLineChart();
+        }
+      }
+    })
+    //set the menu to the right thing on page load
+    $('#dropdown').val(SELECTED_CAT);
+    $('#dropdown').selectmenu('refresh');
   }
 
 
-  var menuItems = dict.filter(function(measure){
-    return measure['demo'] === 'all'
-  })
+  //based on the seleted measure, remove no data counties
+  //you don't have to look thru states bc htey all have data for all measures
+  function filterPlaces(){
+    var placesWithData = [];
 
-  makeMeasureMenu(menuItems)
+    var nanCounter = 0;
 
-  $('#dropdown').selectmenu({
-    change: function (event, data){
-      SELECTED_CAT = this.value
-      var text = dict.filter(function(d){ return d.value === SELECTED_CAT })[0].label.split(',')[0]
-      d3.selectAll('.dek').text(text)
-      prepareDataAndUpdateMap();
-      updateTitles();
-
-      //change width of dropdown to fit new text
-      if (!IS_MOBILE){
-        $('#text-measurer').text(text)
-        var textWidth = $('#text-measurer').width()
-        $('.ui-selectmenu-text').css('width', textWidth + 5 + 'px')
-        $('#dropdown-button').css('width', textWidth + 50 + 'px')
-      }
-
-      if ( GEOG_LEVEL === 'nation' ){
-        usLineChart();
-      } else if ( GEOG_LEVEL === 'state' ){
-        filterSearchOptionsToState();
-        stateLineChart();
-      } else {
-        countyLineChart();
+    for (var i = 0; i < autocompleteSrc.length; i++ ){
+      if ( autocompleteSrc[i].id.length < 3 ){ placesWithData.push(autocompleteSrc[i]) }
+      if ( typeof nestedCountyData.get(autocompleteSrc[i].id) !== 'undefined' ){
+        var countyData = nestedCountyData.get(autocompleteSrc[i].id)
+        for (var j = 0; j < countyData.length; j++ ){
+          if ( isNaN(countyData[j][SELECTED_CAT]) ){
+            nanCounter += 1
+          }
+        }
+        if (nanCounter < 3){
+          placesWithData.push(autocompleteSrc[i]) 
+        }
+        nanCounter = 0
       }
     }
+    
+    if (GEOG_LEVEL === 'state' || GEOG_LEVEL === 'county'){
+      //filter to that states counties with data
+      placesWithData = placesWithData.filter(function(d){
+        return d.id.substring(0,2) === nameFips[SELECTED_STATE]
+      })
+
+    }
+    return placesWithData;
+  }
+
+  function filterMeasures(placeId){
+    
+    // if it's a county limit the menu options to stuff it has data for
+    var menuData 
+    if (placeId === 'US'){
+      menuData = MEASURE_MENU_ITEMS
+    } else if (placeId.length < 5){   //all states have all measures
+      menuData = MEASURE_MENU_ITEMS
+    } else {
+      var nanCounter = 0
+      var countyData = nestedCountyData.get(placeId)
+      var filteredMeasures = []
+        for ( var i = 0; i < MEASURE_MENU_ITEMS.length; i++ ){
+          for ( var j = 0; j < countyData.length; j++ ){
+            if ( isNaN( countyData[j][MEASURE_MENU_ITEMS[i].value] ) ){
+              nanCounter += 1
+            }
+          }
+          if (nanCounter < 4){
+            filteredMeasures.push(MEASURE_MENU_ITEMS[i])
+          }
+          nanCounter = 0
+        }
+
+      menuData = filteredMeasures
+
+       // var countyData = countiesData.filter(function(d){
+      //     return d.date === SELECTED_MONTH //TODO this should probably go thru all the months and not accept more than 2-3 NaNs ?
+      //   }).filter(function(d){
+      //       return d.place === placeId
+      //   })[0]
+      
+      // var allOptions = Object.keys(countyData).slice(2,countyData.length)
+      // var result = []
+      // for (var i = 0; i < allOptions.length; i++){
+      //   if ( countyData[allOptions[i]] !== "" && !isNaN(+countyData[allOptions[i]]) ){
+      //     result.push(allOptions[i])
+      //   }
+      // }
+
+      // var newMenuItems = MEASURE_MENU_ITEMS.filter(function(d){
+      //   return result.indexOf(d.value) > 0
+      // })
+      
+    }
+
+    updateMeasureMenu(menuData)
+
+  }
+
+  $('.stateCountySearch').select2({
+    data: filterPlaces(),
+    placeholder: 'Search for your state or county'
+  });
+
+  //big screens
+  $('.stateCountySearch').on('select2:select', function(evt){
+    getPlaceFromTagLookup(evt);
+    //then update the menu with only counties that have data for this measure
+    filterMeasures(evt.params.data.id);
+
   })
+
+  $('.stateCountySearch').on('select2:unselect', function(evt){
+    var removed = evt.params.data.id;
+    //removing a county
+    if (removed.length > 2){
+      GEOG_LEVEL = 'state'
+      d3.selectAll('.counties').classed('selected', false)
+      $('#readout > li.county > span.place').text('')
+      $('#readout > li.county > span.pct').text('')
+      $('#readout > li').removeClass('mouse-mate')
+      $('#readout > li.state').addClass('mouse-mate')
+      stateLineChart();
+
+    } else {
+      //removing a state also removes a county and resets teh whole thing, just like zoombtn
+      projection.fitExtent([[0,0],[mapWidth,mapHeight]], featureCollection)
+               // resize the map
+      usMap.selectAll('.counties').attr('d', path);
+      usMap.selectAll('.state-outlines').attr('d', path);
+      //reset geographic stuff to default
+      GEOG_LEVEL = 'nation'
+      SELECTED_STATE = 'US'
+      SELECTED_COUNTY = ''
+      $('#readout > li.county > span.place').text('')
+      $('#readout > li.county > span.pct').text('')
+      $('#readout > li.state > span.place').text('')
+      $('#readout > li.state > span.pct').text('')
+      d3.selectAll('path.state-outlines').attr('stroke', '#FFFFFF').attr('stroke-width', 2)
+      d3.select('.counties.selected').classed('selected', false)
+      usLineChart();
+      updateTitles();
+
+      $('.stateCountySearch').empty().select2({
+          data: filterPlaces(),
+          placeholder: 'Search for your state or county',
+          multiple: true,
+          maximumSelectionLength: 2
+      });
+    }
+  })
+
 
   if (IS_MOBILE){
     makeMobileMenu()
@@ -318,61 +467,9 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       $('#mobile-county-dropdown').selectmenu('refresh')
       $('#mobile-county-dropdown-button').css('opacity', 1)
     }
-
-
   }
 
-  $('#dropdown').val(SELECTED_CAT);
-  $('#dropdown').selectmenu('refresh');
-
-  $('.stateCountySearch').select2({
-    data: autocompleteSrc,
-    placeholder: 'Search for your state or county'
-  });
-
-  //big screens
-  $('.stateCountySearch').on('select2:select', function(evt){
-    getPlaceFromTagLookup(evt);
-  })
-
-  $('.stateCountySearch').on('select2:unselect', function(evt){
-    var removed = evt.params.data.id;
-    //removing a county
-    if (removed.length > 2){
-      GEOG_LEVEL = 'state'
-      d3.selectAll('.counties').classed('selected', false)
-      $('#readout > li.county > span.place').text('')
-      $('#readout > li.county > span.pct').text('')
-      $('#readout > li').removeClass('mouse-mate')
-      $('#readout > li.state').addClass('mouse-mate')
-      stateLineChart();
-    } else {
-      //removing a state also removes a county and resets teh whole thing, just like zoombtn
-      projection.fitExtent([[0,0],[mapWidth,mapHeight]], featureCollection)
-               // resize the map
-      usMap.selectAll('.counties').attr('d', path);
-      usMap.selectAll('.state-outlines').attr('d', path);
-      //reset geographic stuff to default
-      GEOG_LEVEL = 'nation'
-      SELECTED_STATE = 'US'
-      SELECTED_COUNTY = ''
-      $('#readout > li.county > span.place').text('')
-      $('#readout > li.county > span.pct').text('')
-      $('#readout > li.state > span.place').text('')
-      $('#readout > li.state > span.pct').text('')
-      d3.selectAll('path.state-outlines').attr('stroke', '#FFFFFF').attr('stroke-width', 2)
-      d3.select('.counties.selected').classed('selected', false)
-      usLineChart();
-      updateTitles();
-
-      $('.stateCountySearch').empty().select2({
-          data: autocompleteSrc,
-          placeholder: 'Search for your state or county',
-          multiple: true,
-          maximumSelectionLength: 2
-      });
-    }
-  })
+  //end of search menus
 
   $('.zoom-btn-wrapper').on('click', function(d){
       projection.fitExtent([[0,0],[mapWidth,mapHeight]], featureCollection)
@@ -393,10 +490,12 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       updateTitles();
 
       $('.stateCountySearch').empty().select2({
-          data: autocompleteSrc,
+          data: filterPlaces(),
           placeholder: 'Search for your state or county',
           multiple: true
       });
+
+      filterMeasures('US');
   })
 
   var PREVIOUS_SELECTED_MONTH
@@ -468,14 +567,16 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         $('#' + tooltipID).css({
           top: evt.pageY - tooltipHeight / 2,
           left: evt.pageX + arrowWidth,
-          opacity: 0.9
+          opacity: 0.9,
+          display: 'block'
         })
 
       },
       mouseleave: function(){
         var tooltipID = $(this).attr('data-note');
         $('#' + tooltipID).css({
-          opacity: 0
+          opacity: 0,
+          display: 'none'
         })
       }
   })
@@ -570,25 +671,27 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   //DATA PREP
 
 
-  //get first month's data to set scales (set the scales only once, rather than updating for each new month)
-  var febcountiesData = countiesData.filter(function(d){
-    if (isNaN(+d[SELECTED_CAT])){ d[SELECTED_CAT] = '' }
-    return d.date === '2/1/2020'
-  })
-
 
   var creditByCountyId = {}
   function prepareDataAndUpdateMap(){
     var selectedCatWithAllSuffix = SELECTED_CAT.substring(0, SELECTED_CAT.length-3) + 'all';
 
     var monthlycountiesData = countiesData.filter(function(d){
-      if (isNaN(+d[selectedCatWithAllSuffix])){ d[selectedCatWithAllSuffix] = '' }
+      // if (isNaN(+d[selectedCatWithAllSuffix])){ d[selectedCatWithAllSuffix] = '' }
       return d.date === SELECTED_MONTH
     })
 
     monthlycountiesData.forEach(function(d) {
       creditByCountyId[d.place] = +d[selectedCatWithAllSuffix]
     })
+
+      //get first month's data to set scales (set the scales only once, rather than updating for each new month)
+    var febcountiesData = countiesData.filter(function(d){
+      if ( !isNaN(+d[SELECTED_CAT]) ){
+        return d.date === '2/1/2020'
+      } 
+    })
+
     //set the scale using just 2/2020's data so that scale doesn't with the data, to help with comparison
     clusterScale
       .domain(febcountiesData.map(function(county){ return +county[selectedCatWithAllSuffix] }))
@@ -816,10 +919,19 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         SELECTED_STATE = fipsNames[placeId]
         goToState = placeId
         stateLineChart();
-        filterSearchOptionsToState();
+        
+
+        $('.stateCountySearch').empty().select2({
+            data: filterPlaces(),
+            placeholder: 'Search for your state or county',
+            multiple: true,
+            maximumSelectionLength: 2
+        });
 
         $('.stateCountySearch').val([goToState]).trigger('change')
       }
+
+
       d3.selectAll('.counties').classed('selected', false)
       d3.select('.counties.c' + SELECTED_COUNTY).classed('selected', true).moveToFront()
       updateTitles();
@@ -836,7 +948,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       //true or false, there's no data for this state
       return statesData.filter(function(d){ return d.place === fipsNames[stateFips] })[dataMonths.indexOf(SELECTED_MONTH)][SELECTED_CAT] === ''
     } else {
-      return countiesData.filter(function(d){ return d.place === placeId })[dataMonths.indexOf(SELECTED_MONTH)][SELECTED_CAT] === ''
+      var datum = countiesData.filter(function(d){ return d.place === placeId })[dataMonths.indexOf(SELECTED_MONTH)][SELECTED_CAT]
+      return isNaN(datum)
     }
   }
 
@@ -855,7 +968,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         SELECTED_STATE = fipsNames[stateFips]
         moveMap(stateFips);
         stateLineChart();
-        filterSearchOptionsToState();
 
         $('.stateCountySearch').val([stateFips]).trigger('change')
 
@@ -873,7 +985,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           SELECTED_COUNTY = ''
           $('#readout > li.county > span.place').text('')
           $('#readout > li.county > span.pct').text('')
-          filterSearchOptionsToState();
+
           moveMap(stateFips);
           stateLineChart();
           $('.stateCountySearch').val([stateFips]).trigger('change')
@@ -889,35 +1001,18 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
         }
       }
+      filterMeasures(evt.id)
       updateTitles();
+
+            $('.stateCountySearch').empty().select2({
+          data: filterPlaces(),
+          placeholder: 'Search for your state or county',
+          multiple: true,
+          maximumSelectionLength: 2
+      });
     }
   }
 
-  function filterSearchOptionsToState(){
-
-    var relevantCounties = countiesData.filter(function(d){
-      return d.date === SELECTED_MONTH &&
-      !isNaN(+d[SELECTED_CAT]) && d[SELECTED_CAT] !== '' && //some n/a* became "" in teh datasheet :()
-      d.place.substring(0,2) === nameFips[SELECTED_STATE]
-    })
-
-    // https://stackoverflow.com/questions/32965688/comparing-two-arrays-of-objects-and-exclude-the-elements-who-match-values-into
-    var filteredOptions = autocompleteSrc.filter(function (o1) {
-        return relevantCounties.some(function (o2) {
-            return o1.id === o2.place;
-       });
-    });
-
-    if (IS_MOBILE){
-
-    } else {
-      $('.stateCountySearch').empty().select2({
-        data: filteredOptions,
-        multiple: true,
-        placeholder: 'Search for your state or county'
-      })
-    }
-  }
 
   function moveMap(stateFips){
 
@@ -1241,7 +1336,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
   function drawLine(data){
     setYDomain(data)
-    console.log('domain ' + y.domain() + ' range ' + y.range() )
+    
     updateLineLegend(data);
     var dotData = []
     for (var i = 0; i < data.length; i++){
@@ -1259,7 +1354,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       .x(function(d){ return xScale(parseTime(d.date)) })
       .y(function(d){ return y(d.value) })
       .defined(function(d){
-        return !isNaN(d.value)
+        return !isNaN(d.value) 
       })
 
     lineYAxis.call(yAxis);
@@ -1582,17 +1677,25 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   if (!IS_MOBILE){
     prepareDataAndUpdateMap();
   }
+
   lilChartByRace();
   if (GEOG_LEVEL === 'nation'){
     usLineChart();
+    filterPlaces(); //no counties that don't have data for th eselected measure
+    filterMeasures('US')
   } else if (GEOG_LEVEL === 'state'){
     stateLineChart();
     updateTitles();
+    filterMeasures(nameFips[SELECTED_STATE])
+     //the state menu will need to just have counties with data but 
+     //the states all have data for all measures so that doesn't need to be filtered
+    filterPlaces();
     $('.stateCountySearch').val(nameFips[SELECTED_STATE]).trigger('change')
   } else if (GEOG_LEVEL === 'county'){
     countyLineChart();
     updateTitles();
-
+    filterMeasures(SELECTED_COUNTY) //don't let a user pick a measure for which county has no data
+    filterPlaces(); //the place menu needs to just have selected state's data-having counties
     $('.stateCountySearch').val(nameFips[SELECTED_STATE]).trigger('change')
     $('.stateCountySearch').val(SELECTED_COUNTY).trigger('change')
   }
