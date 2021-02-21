@@ -271,7 +271,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           $('#dropdown-button').css('width', textWidth + 50 + 'px')
         }
 
-        $('.stateCountySearch').empty().select2({
+        $('.stateCountySearch').select2({
             data: filterPlaces(),
             placeholder: 'Search for your state or county',
             multiple: true,
@@ -284,6 +284,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           stateLineChart();
         } else {
           countyLineChart();
+          $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
         }
       }
     })
@@ -1262,8 +1263,9 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       .attr('data-group', function(d){ return d.key })
       .html(function(d){ return '<div class=\'legend-dash\'></div>' + labels[GEOG_LEVEL][d.key] })
       .on('mouseover', function(d){
-        d3.select('path.data-line.' + d.key).attr('stroke-width', 4).moveToFront()
-        d3.selectAll('circle.dot.' + d.key).attr('r', function(d){ if (isNaN(d.value) || d.value === ''){ return 0 } else { return 4 } }).moveToFront()
+        d3.select('path.data-line.' + d.key).attr('stroke-width', 6)
+        
+        d3.selectAll('circle.dot.' + d.key).attr('r', function(d){ if (isNaN(d.value) || d.value === ''){ return 0 } else { return 4 } })
         // d3.select(this).style('font-weight', 700)
         $(this).children('.legend-dash').css('border-top-width', '3px')
       })
@@ -1415,7 +1417,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
       //add some circles
       var markers = lineChartSvg.selectAll('.dot')
-          .data(dotData, function(d){ return d.key })
+          .data(dotData)
 
       markers.enter()
         .append('circle')
@@ -1430,13 +1432,15 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           if (isNaN(d.value)){
             return
           } else {
-            return xScale(parseTime(d.date)) }
+            return xScale(parseTime(d.date)) 
+          }
           })
         .attr('cy', function(d){
           if (isNaN(d.value)){
             return
           } else {
-           return y(d.value) }
+           return y(d.value) 
+         }
         })
 
       markers.transition()
@@ -1450,17 +1454,19 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           if (isNaN(d.value)){
             return
           } else {
-            return xScale(parseTime(d.date)) }
+            return xScale(parseTime(d.date)) 
+          }
           })
         .attr('cy', function(d){
           if (isNaN(d.value)){
             return
           } else {
-           return y(d.value) }
+           return y(d.value) 
+         }
         })
 
-        markers.exit().remove();
         markers.moveToFront();
+        markers.exit().remove();
 
         if (IS_MOBILE){
           var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard'),
@@ -1522,7 +1528,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
           }).on('mouseenter', function(tick){
                 //hover temporarily changes the date and puts a tooltip over the topmost datapoint at that year
-
             PREVIOUS_SELECTED_MONTH = SELECTED_MONTH
             SELECTED_MONTH = d3.timeFormat('%-m/%-d/%Y')(tick)
 
