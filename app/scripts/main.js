@@ -1529,6 +1529,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
             d3.selectAll('.tick').classed('moused', false)
             d3.select(this).classed('moused', true)
 
+            //changing the time only changes which line marker is highlighted, it doesn't redraw the chart
             d3.selectAll('.dot')
               .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 } })
               .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
