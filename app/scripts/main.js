@@ -372,9 +372,9 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   })
 
   $('.stateCountySearch').on('select2:unselect', function(evt){
-    var removed = evt.params.data.id;
+    var removedsId = evt.params.data.id;
     //removing a county
-    if (removed.length > 2){
+    if (removedsId.length > 2){
       GEOG_LEVEL = 'state'
       d3.selectAll('.counties').classed('selected', false)
       $('#readout > li.county > span.place').text('')
@@ -382,7 +382,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       $('#readout > li').removeClass('mouse-mate')
       $('#readout > li.state').addClass('mouse-mate')
       stateLineChart();
-
+      updateTitles();
     } else {
       //removing a state also removes a county and resets teh whole thing, just like zoombtn
       projection.fitExtent([[0,0],[mapWidth,mapHeight]], featureCollection)
@@ -401,14 +401,13 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       d3.select('.counties.selected').classed('selected', false)
       usLineChart();
       updateTitles();
-
-      $('.stateCountySearch').empty().select2({
-          data: filterPlaces(),
-          placeholder: 'Search for your state or county',
-          multiple: true,
-          maximumSelectionLength: 2
-      });
     }
+    $('.stateCountySearch').select2({
+        data: filterPlaces(),
+        placeholder: 'Search for your state or county',
+        multiple: true,
+        maximumSelectionLength: 2
+    });
   })
 
 
@@ -1011,6 +1010,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         $('.stateCountySearch').val(stateFips).trigger('change')
       }
     }
+
   }
 
 
@@ -1459,8 +1459,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
            return y(d.value) }
         })
 
-        markers.moveToFront();
         markers.exit().remove();
+        markers.moveToFront();
 
         if (IS_MOBILE){
           var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard'),
@@ -1529,7 +1529,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
             d3.selectAll('.tick').classed('moused', false)
             d3.select(this).classed('moused', true)
 
-            //changing the time only changes which line marker is highlighted, it doesn't redraw the chart
             d3.selectAll('.dot')
               .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 } })
               .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
