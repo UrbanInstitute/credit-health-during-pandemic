@@ -1366,8 +1366,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
   }
 
-
-
   function drawLine(data){
     setYDomain(data)
 
@@ -1509,7 +1507,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
          }
         })
 
-        markers.moveToFront();
+
         markers.exit().remove();
 
         if (IS_MOBILE){
