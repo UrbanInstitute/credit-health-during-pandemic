@@ -29,6 +29,10 @@ var parseTime = d3.timeParse('%m/%d/%Y')
 var dataMonths = ['2/1/2020', '4/1/2020', '6/1/2020','8/1/2020','10/1/2020']
 var tickValues = dataMonths.map(function(d){ return parseTime(d) })
 
+var nanCounterLimit = 3 //if you're adding data, consider increasing this
+                        //i'm requiring 2 datapoints because that makes a line
+                        //but maybe you think differently
+
 function formatScore(num){
   if (SELECTED_CAT === 'median_credit_score_all'){
     return num
@@ -219,9 +223,9 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   //UI STUFF
 
   function updateMeasureMenu(data){
-      
+
     var menu = d3.select('#dropdown').selectAll('option')
-      .data(data)
+      .data(data, function(d){ return d.value })
 
     menu.enter()
       .append('option')
@@ -271,7 +275,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           $('#dropdown-button').css('width', textWidth + 50 + 'px')
         }
 
-        $('.stateCountySearch').select2({
+        $('.stateCountySearch').empty().select2({
             data: filterPlaces(),
             placeholder: 'Search for your state or county',
             multiple: true,
@@ -282,8 +286,11 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           usLineChart();
         } else if ( GEOG_LEVEL === 'state' ){
           stateLineChart();
+          //be confident in this global at this time bc the measures don't do anything to geography
+          $('.stateCountySearch').val(SELECTED_STATE).trigger('change')
         } else {
           countyLineChart();
+           $('.stateCountySearch').val([SELECTED_COUNTY, nameFips[SELECTED_STATE]]).trigger('change')
           $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
         }
       }
@@ -297,6 +304,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   //based on the seleted measure, remove no data counties
   //you don't have to look thru states bc htey all have data for all measures
   function filterPlaces(){
+
     var placesWithData = [];
 
     var nanCounter = 0;
@@ -310,13 +318,13 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
             nanCounter += 1
           }
         }
-        if (nanCounter < 3){
-          placesWithData.push(autocompleteSrc[i]) 
+        if (nanCounter < nanCounterLimit){
+          placesWithData.push(autocompleteSrc[i])
         }
         nanCounter = 0
       }
     }
-    
+
     if (GEOG_LEVEL === 'state' || GEOG_LEVEL === 'county'){
       //filter to that states counties with data
       placesWithData = placesWithData.filter(function(d){
@@ -328,12 +336,12 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   }
 
   function filterMeasures(placeId){
-    
+
     // if it's a county limit the menu options to stuff it has data for
-    var menuData 
+    var menuData
     if (placeId === 'US'){
       menuData = MEASURE_MENU_ITEMS
-    } else if (placeId.length < 5){   //all states have all measures
+    } else if (placeId !== 'US' && placeId.length < 5){   //all states have all measures
       menuData = MEASURE_MENU_ITEMS
     } else {
       var nanCounter = 0
@@ -345,24 +353,33 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
               nanCounter += 1
             }
           }
-          if (nanCounter < 4){
+          if (nanCounter < nanCounterLimit){
             filteredMeasures.push(MEASURE_MENU_ITEMS[i])
           }
           nanCounter = 0
         }
 
       menuData = filteredMeasures
-      
+
     }
     //this measure is shared with mobile
     updateMeasureMenu(menuData)
-
   }
 
+  //hi I'm just sitting here to be executed on load
   $('.stateCountySearch').select2({
     data: filterPlaces(),
     placeholder: 'Search for your state or county'
   });
+  //so you have to check me and see if i should have tags
+  if ( GEOG_LEVEL === 'state' ){
+    $('.stateCountySearch').val(SELECTED_STATE).trigger('change')
+  } else {
+    $('.stateCountySearch').val([SELECTED_COUNTY, nameFips[SELECTED_STATE]]).trigger('change')
+    $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
+  }
+
+
 
   //big screens
   $('.stateCountySearch').on('select2:select', function(evt){
@@ -373,7 +390,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   })
 
   $('.stateCountySearch').on('select2:unselect', function(evt){
-    var removedsId = evt.params.data.id;
+    var removedsId = evt.params.data.id,
+      removedState = removedsId.substring(0,2)
     //removing a county
     if (removedsId.length > 2){
       GEOG_LEVEL = 'state'
@@ -403,12 +421,22 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       usLineChart();
       updateTitles();
     }
-    $('.stateCountySearch').select2({
+    //you're going back to state level
+    filterMeasures(removedState)
+
+    $('.stateCountySearch').empty().select2({
         data: filterPlaces(),
         placeholder: 'Search for your state or county',
         multiple: true,
         maximumSelectionLength: 2
     });
+
+    if (GEOG_LEVEL === 'state'){
+      $('.stateCountySearch').val(removedState).trigger('change')
+    } else if (GEOG_LEVEL === 'county'){
+      $('.stateCountySearch').val([removedsId, removedState]).trigger('change')
+      $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
+    }
   })
 
 
@@ -521,9 +549,9 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
       d3.select(this).classed('moused', true)
 
-      d3.selectAll('.tick.selected').classed('selected', false);
+      d3.selectAll('.tick.moused').classed('moused', false);
       var gPosition = dataMonths.indexOf(SELECTED_MONTH) + 2
-      d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + gPosition + ')').classed('selected',true)
+      d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + gPosition + ')').classed('moused',true)
 
       //changing the time only changes which line marker is highlighted, it doesn't redraw the chart
       d3.selectAll('.dot')
@@ -541,9 +569,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       if ( d3.select(this).classed('clicked') ){
         SELECTED_MONTH = div.attr('data-month')
       }
-       d3.selectAll('.tick.selected').classed('selected', false);
-      var gPosition = dataMonths.indexOf(SELECTED_MONTH) + 2
-      d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + gPosition + ')').classed('selected',true)
+       d3.selectAll('.tick.moused').classed('moused', false);
 
       //changing the time only changes which line marker is highlighted, it doesn't redraw the chart
       d3.selectAll('.dot')
@@ -565,7 +591,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         $('#' + tooltipID).css({
           top: evt.pageY - tooltipHeight / 2,
           left: evt.pageX + arrowWidth,
-          opacity: 0.9,
+          opacity: 0.95,
           display: 'block'
         })
 
@@ -687,7 +713,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     var febcountiesData = countiesData.filter(function(d){
       if ( !isNaN(+d[SELECTED_CAT]) ){
         return d.date === '2/1/2020'
-      } 
+      }
     })
 
     //set the scale using just 2/2020's data so that scale doesn't with the data, to help with comparison
@@ -917,7 +943,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         SELECTED_STATE = fipsNames[placeId]
         goToState = placeId
         stateLineChart();
-        
+
         $('.stateCountySearch').empty().select2({
             data: filterPlaces(),
             placeholder: 'Search for your state or county',
@@ -951,13 +977,13 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   }
 
   function getPlaceFromMap(evt){
-
+    var stateFips = evt.id.substring(0,2)
     var placeHasNoData = checkForData(evt)
     if ( placeHasNoData ){
-      d3.evt.preventDefault()
+      // d3.evt.preventDefault()
       return
     } else {
-      var stateFips = evt.id.substring(0,2)
+
       if ( GEOG_LEVEL === 'nation' ){
 
         GEOG_LEVEL = 'state'
@@ -965,10 +991,10 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         SELECTED_STATE = fipsNames[stateFips]
         moveMap(stateFips);
         stateLineChart();
-
+         filterMeasures(stateFips)
 
       } else if ( GEOG_LEVEL === 'state' || GEOG_LEVEL === 'county' ){
-
+         filterMeasures(evt.id)
         //because this is also handling regular click event type stuff
         $('#readout > li').removeClass('mouse-mate')
         $('#readout > li.county').addClass('mouse-mate')
@@ -991,11 +1017,11 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           mousedCounty.classed('selected', true)
           mousedCounty.moveToFront();
           countyLineChart();
-          
+
           $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
         }
       }
-      filterMeasures(evt.id)
+
       updateTitles();
 
       $('.stateCountySearch').empty().select2({
@@ -1255,24 +1281,40 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       }
     }
 
-  d3.select('#line-legend').selectAll('li').remove()
+    //find no datas
+    for (var i = 0; i < data.length; i++){
+      var nanCounter = 0;
+      for (var j = 0; j < data[i].values.length; j++){
+        if (isNaN(data[i].values[j].value)){
+          nanCounter += 1
+        }
+      }
+      if (nanCounter < nanCounterLimit){
+        data[i].class = 'hasData'
+      } else {
+        data[i].class = 'noData'
+      }
+      nanCounter = 0
+    }
+
+    d3.select('#line-legend').selectAll('li').remove()
     d3.select('#line-legend').selectAll('li')
       .data(data)
       .enter()
       .append('li')
-      .attr('class', function(d){ return GEOG_LEVEL + d.key })
+      .attr('class', function(d){ return GEOG_LEVEL + d.key + ' ' + d.class })
       .attr('data-group', function(d){ return d.key })
       .html(function(d){ return '<div class=\'legend-dash\'></div>' + labels[GEOG_LEVEL][d.key] })
       .on('mouseover', function(d){
-        d3.select('path.data-line.' + d.key).attr('stroke-width', 6)
-        
-        d3.selectAll('circle.dot.' + d.key).attr('r', function(d){ if (isNaN(d.value) || d.value === ''){ return 0 } else { return 4 } })
+        d3.select('path.data-line.' + d.key).attr('stroke-width', 5)
+
+        // d3.selectAll('circle.dot.' + d.key).attr('r', function(d){ if (isNaN(d.value) || d.value === ''){ return 0 } else { return 4 } })
         // d3.select(this).style('font-weight', 700)
         $(this).children('.legend-dash').css('border-top-width', '3px')
       })
       .on('mouseout', function(d){
         d3.select('path.data-line.' + d.key).attr('stroke-width', 3)
-        d3.selectAll('circle.dot.' + d.key).attr('r',2.5)
+        // d3.selectAll('circle.dot.' + d.key).attr('r',2.5)
         d3.selectAll('.dot')
           .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 } })
           .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
@@ -1328,7 +1370,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
   function drawLine(data){
     setYDomain(data)
-    
+
     updateLineLegend(data);
     var dotData = []
     for (var i = 0; i < data.length; i++){
@@ -1346,7 +1388,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       .x(function(d){ return xScale(parseTime(d.date)) })
       .y(function(d){ return y(d.value) })
       .defined(function(d){
-        return !isNaN(d.value) 
+        return !isNaN(d.value)
       })
 
     lineYAxis.call(yAxis);
@@ -1385,6 +1427,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     })
 
     var gPosition = dataMonths.indexOf(SELECTED_MONTH) + 2
+    d3.selectAll('.tick.selected').classed('selected', false)
     d3.select('div.state-lines > svg > g > g.x-axis > g:nth-child(' + gPosition + ')').classed('selected',true)
 
     lineYAxis.selectAll('.tick text').attr('x', -8).attr('dy', 14)
@@ -1433,14 +1476,14 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           if (isNaN(d.value)){
             return
           } else {
-            return xScale(parseTime(d.date)) 
+            return xScale(parseTime(d.date))
           }
           })
         .attr('cy', function(d){
           if (isNaN(d.value)){
             return
           } else {
-           return y(d.value) 
+           return y(d.value)
          }
         })
 
@@ -1455,14 +1498,14 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           if (isNaN(d.value)){
             return
           } else {
-            return xScale(parseTime(d.date)) 
+            return xScale(parseTime(d.date))
           }
           })
         .attr('cy', function(d){
           if (isNaN(d.value)){
             return
           } else {
-           return y(d.value) 
+           return y(d.value)
          }
         })
 
@@ -1558,15 +1601,14 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
           }).on('mouseout', function(tick){
 
-            template.style('opacity', 0)
             SELECTED_MONTH = PREVIOUS_SELECTED_MONTH
             d3.selectAll('.tick').classed('moused', false)
             //if you're mousing out of something you just clicked on don't revert to PREVIOUS_SELECTED_MONTH
             if ( d3.select(this).classed('selected') ){
               SELECTED_MONTH = d3.timeFormat('%-m/%-d/%Y')(tick)
-
             }
 
+            template.style('opacity', 0)
 
             //take the temporary highlight off the vertical timeline
             d3.selectAll('#vertical-timeline > g.moused').classed('moused', false)
@@ -1682,7 +1724,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     stateLineChart();
     updateTitles();
     filterMeasures(nameFips[SELECTED_STATE])
-     //the state menu will need to just have counties with data but 
+     //the state menu will need to just have counties with data but
      //the states all have data for all measures so that doesn't need to be filtered
     filterPlaces();
     $('.stateCountySearch').val(nameFips[SELECTED_STATE]).trigger('change')
