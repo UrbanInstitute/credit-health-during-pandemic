@@ -944,11 +944,7 @@ ul#line-legend {
   margin-bottom: 10px;
 
     .noData {
-      opacity: 0.6;
-
-        div.legend-dash {
-          border-top-width: 2px !important;
-        }
+      display: none;
     }
 }
 
