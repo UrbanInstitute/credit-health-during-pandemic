@@ -379,9 +379,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
   }
 
-
-
-  //big screens
+  //and here's my events
   $('.stateCountySearch').on('select2:select', function(evt){
     getPlaceFromTagLookup(evt);
     //then update the menu with only counties that have data for this measure
@@ -448,7 +446,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     var states = autocompleteSrc.filter(function(d){
       return d.id.length < 3
     })
-
     states.unshift({id: 'US', text: 'United States'})
 
     d3.select('#mobile-state-dropdown').selectAll('option')
@@ -461,9 +458,20 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     $('#mobile-state-dropdown').selectmenu({
       change: function(evt,data){
         getPlaceFromTagLookup(evt);
-        makeCountyMenu();
 
-        filterMeasures(data.item.value);
+        var counties = filterPlaces();
+        //add in a blank option at the top
+        counties.unshift({id: '', text: ''})
+        makeCountyMenu(counties);
+
+        var placeId = data.item.value
+        filterMeasures(placeId);
+
+        if (placeId === 'US'){
+          $('#mobile-county-dropdown').empty()
+          $('#mobile-county-dropdown').selectmenu('refresh')
+          $('#mobile-county-dropdown-button').css('opacity', 0.5)
+        }
       }
     })
 
@@ -476,8 +484,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
     $('#mobile-county-dropdown-button').css('opacity', 0.5 )
 
-    function makeCountyMenu(){
-      var counties = filterPlaces();
+    function makeCountyMenu(counties){
 
       var stateFips = $('#mobile-state-dropdown').val();
 
@@ -1101,7 +1108,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   //LINE CHARTS
   function setYDomain(data){
     if (SELECTED_CAT === 'median_credit_score_all'){
-      return y.domain([550,750])
+      return y.domain([550,800])
     } else {
       var domainInflater = 1.3
       var min = d3.min(data[0].values, function(d){ return d.value }),
@@ -1306,7 +1313,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       .attr('data-group', function(d){ return d.key })
       .html(function(d){ return '<div class=\'legend-dash\'></div>' + labels[GEOG_LEVEL][d.key] })
       .on('mouseover', function(d){
-        d3.select('path.data-line.' + d.key).attr('stroke-width', 5)
+        d3.select('path.data-line.' + d.key).attr('stroke-width', 6)
 
         // d3.selectAll('circle.dot.' + d.key).attr('r', function(d){ if (isNaN(d.value) || d.value === ''){ return 0 } else { return 4 } })
         // d3.select(this).style('font-weight', 700)
@@ -1331,6 +1338,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard')
       //changes the month over teh whole table
       d3.select('.selected-month').text(d3.timeFormat('%B')(parseTime(SELECTED_MONTH)))
+
     } else {
       template = GEOG_LEVEL === 'nation' ? d3.select('#nation-scoreboard') : d3.select('#state-county-scoreboard')
     }
@@ -1507,7 +1515,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
          }
         })
 
-
+        markers.moveToFront();
         markers.exit().remove();
 
         if (IS_MOBILE){
@@ -1725,6 +1733,10 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
      //the state menu will need to just have counties with data but
      //the states all have data for all measures so that doesn't need to be filtered
     filterPlaces();
+    if (IS_MOBILE){
+      $('#mobile-nation-scoreboard').css('display', 'none')
+      $('#mobile-state-county-scoreboard').css('display', 'block')
+    }
     $('.stateCountySearch').val(nameFips[SELECTED_STATE]).trigger('change')
   } else if (GEOG_LEVEL === 'county'){
     countyLineChart();
@@ -1734,6 +1746,9 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
     $('.stateCountySearch').val(nameFips[SELECTED_STATE]).trigger('change')
     $('.stateCountySearch').val([SELECTED_COUNTY, SELECTED_COUNTY.substring(0,2)]).trigger('change')
     $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
+
+    $('#mobile-nation-scoreboard').css('display', 'none')
+    $('#mobile-state-county-scoreboard').css('display', 'block')
   }
 
   $('#line-chart-container').css('margin-top', $('#map-header').outerHeight() + 10)

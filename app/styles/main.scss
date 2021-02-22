@@ -864,13 +864,12 @@ ul.us-legend {
 
 
 #map-header > span > span.selection > span > ul > li > input {
-  background: url(../images/search-icon.png) no-repeat right #ffffff;
   font-family: Lato;
   font-size: 18px;
 }
 
-#map-header > span > span.selection > span > ul > li.select2-search.select2-search--inline > input {
-  background: none;
+span.selection > .select2-selection {
+  background: url(../images/search-icon.png) no-repeat right #ffffff;
 }
 
 .select2-selection__choice {
