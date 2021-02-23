@@ -127,6 +127,10 @@ a {
   text-decoration: none;
 }
 
+a:hover {
+  color: $cyan-6;
+}
+
 h1 {
   font-size: 48px;
   font-weight: bold;
@@ -1067,6 +1071,10 @@ ul#line-legend {
 
   .button {
     margin-bottom: 0;
+  }
+
+  #nation-scoreboard.chart-tooltip, #state-county-scoreboard.chart-tooltip {
+    opacity: 0 !important;
   }
 
   #dropdown-button {

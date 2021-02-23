@@ -406,6 +406,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
                // resize the map
       usMap.selectAll('.counties').attr('d', path);
       usMap.selectAll('.state-outlines').attr('d', path);
+      d3.selectAll('.counties').attr('stroke-width', 0.5)
       //reset geographic stuff to default
       GEOG_LEVEL = 'nation'
       SELECTED_STATE = 'US'
@@ -1334,14 +1335,20 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
   function fillTemplate(dotData){
 
     var template
-    if (IS_MOBILE){
+    if ($(window).width() < 800){
       template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard')
       //changes the month over teh whole table
       d3.select('.selected-month').text(d3.timeFormat('%B')(parseTime(SELECTED_MONTH)))
+      d3.select('#nation-scoreboard').style('opacity', 0)
+      d3.select('#state-county-scoreboard').style('opacity', 0)
 
+      d3.selectAll('.mobile-chart-tooltip').style('display', 'none')
+      template.style('display', 'block')
     } else {
       template = GEOG_LEVEL === 'nation' ? d3.select('#nation-scoreboard') : d3.select('#state-county-scoreboard')
-    }
+      d3.selectAll('.mobile-chart-tooltip').style('display', 'none')
+   }
+
                               //fill out the template
     var mouseoverData = d3.nest().key(function(d){ return d.date }).entries(dotData),
       thisMonth = mouseoverData[dataMonths.indexOf(SELECTED_MONTH)].values
@@ -1493,7 +1500,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
          }
         })
 
-      markers.transition()
+
+      markers
         .attr('r', function(d){ if (isNaN(d.value)){ return 0 } else { return d.date === SELECTED_MONTH ? 4 : 2.5 }} )
         .attr('fill', function(d){ return d.date === SELECTED_MONTH ? '#FFFFFF' : colorScheme[GEOG_LEVEL][d.key] })
         .attr('stroke', function(d){
@@ -1514,9 +1522,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
            return y(d.value)
          }
         })
-
-        markers.moveToFront();
         markers.exit().remove();
+        markers.moveToFront();
 
         if (IS_MOBILE){
           var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard'),
@@ -1759,144 +1766,139 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
   function resize(){
     IS_MOBILE = $(window).width() < 800 ? true : false;
-  if (storedWidth !== document.body.clientWidth){
-    console.log('diff')
+    if (storedWidth !== document.body.clientWidth){
 
-    if (!IS_MOBILE){
+      if (!IS_MOBILE){
 
-      prepareDataAndUpdateMap();
-      mapWidth = parseFloat(d3.select('#map-container').style('width'));
-      mapWidth = mapWidth - margin.left - margin.right;
-      mapHeight = mapWidth * mapRatio;
-      //some examples:
-      // https://observablehq.com/@rdmurphy/responsive-maps-based-on-the-bounds-of-projected-geographi
-      // http://bl.ocks.org/chriscanipe/071984bcf482971a94900a01fdb988fa
-      // https://codepen.io/TiannanZ/pen/rrEKoB
+        prepareDataAndUpdateMap();
+        mapWidth = parseFloat(d3.select('#map-container').style('width'));
+        mapWidth = mapWidth - margin.left - margin.right;
+        mapHeight = mapWidth * mapRatio;
+        //some examples:
+        // https://observablehq.com/@rdmurphy/responsive-maps-based-on-the-bounds-of-projected-geographi
+        // http://bl.ocks.org/chriscanipe/071984bcf482971a94900a01fdb988fa
+        // https://codepen.io/TiannanZ/pen/rrEKoB
 
-      // resize the map container
-      usMap
-        .style('width', mapWidth + 'px')
-        .style('height', mapHeight + 'px');
+        // resize the map container
+        usMap
+          .style('width', mapWidth + 'px')
+          .style('height', mapHeight + 'px');
 
-      if (GEOG_LEVEL === 'nation'){
-        projection.fitExtent([[0,0],[mapWidth,mapHeight]], featureCollection)
+          if (GEOG_LEVEL === 'nation'){
+            projection.fitExtent([[0,0],[mapWidth,mapHeight]], featureCollection)
 
-                 // resize the map
-        usMap.selectAll('.counties').attr('d', path);
-        usMap.selectAll('.state-outlines').attr('d', path);
+                     // resize the map
+            usMap.selectAll('.counties').attr('d', path);
+            usMap.selectAll('.state-outlines').attr('d', path);
 
-      //the line chart's width is based on this container for large screens but the inner .state-lines container on
-      //small screens to allow the table beneath to be full width
-      lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')) - mobileShrinkAmt
+          //the line chart's width is based on this container for large screens but the inner .state-lines container on
+          //small screens to allow the table beneath to be full width
+          lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')) - mobileShrinkAmt
 
 
-      // $('.mobile-chart-tooltip').css('display', 'none')
-    } else {
-        var d = topojson.feature(us, us.objects.states).features.filter(function(s){ return s.id == nameFips[SELECTED_STATE]} )[0]
+          // $('.mobile-chart-tooltip').css('display', 'none')
+          } else {
+            var d = topojson.feature(us, us.objects.states).features.filter(function(s){ return s.id == nameFips[SELECTED_STATE]} )[0]
 
-        //possible alternate way to go: https://bl.ocks.org/veltman/77679636739ea2fc6f0be1b4473cf03a
-        centered = centered !== d && d;
+            //possible alternate way to go: https://bl.ocks.org/veltman/77679636739ea2fc6f0be1b4473cf03a
+            centered = centered !== d && d;
 
-        var statePaths = usMap.selectAll('.state-outlines')
-          .classed('active', function(d){ d === centered });
+            var statePaths = usMap.selectAll('.state-outlines')
+              .classed('active', function(d){ d === centered });
 
-        var countyPaths = usMap.selectAll('.counties')
-          .classed('active', function(d){ return d === centered })
+            var countyPaths = usMap.selectAll('.counties')
+              .classed('active', function(d){ return d === centered })
 
-        projection.fitSize([mapWidth, mapHeight], centered || d);
+            projection.fitSize([mapWidth, mapHeight], centered || d);
 
+          }
+
+        var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard')
+
+        template.style('display', 'none')
+
+      } else {
+        makeMobileMenu()
+
+        var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard'),
+        scoocher = 25
+
+        template.style('display', 'block')
+
+        lineChartDivWidth = parseFloat(d3.select('.state-lines').style('width'))
       }
 
+  //line
 
-      var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard')
+      lineChartDivHeight = lineChartDivWidth * lineChartRatio
+      lineChartWidth = lineChartDivWidth - lineMargin.left - lineMargin.right
+      lineChartHeight = lineChartDivHeight - lineMargin.top - lineMargin.bottom
 
-      template.style('display', 'none')
+      d3.select('.state-lines > svg')
+        .attr('width', lineChartWidth + lineMargin.left + lineMargin.right)
+        .attr('height', lineChartHeight + lineMargin.top + lineMargin.bottom);
 
+      xScale.range([0, lineChartWidth])
+      y.range([lineChartHeight, 0])
 
-    } else {
-      makeMobileMenu()
+      lineChartSvg.selectAll('.x-axis')
+          .attr('transform', 'translate(0,' + lineChartHeight + ')')
+          .call(xAxis);
 
-      var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard'),
-      scoocher = 25
+      yAxis.tickSize(-lineChartDivWidth )
 
-      template.style('display', 'block')
+      lineChartSvg.selectAll('.grid')
+          .call(yAxis);
 
-      lineChartDivWidth = parseFloat(d3.select('.state-lines').style('width'))
+      lineChartSvg.selectAll('.data-line')
+        .attr('d', function(d){ return line(d.values)  })
 
-      d3.selectAll('.tick > line').attr('x2', lineChartDivWidth  )
+      lineChartSvg.selectAll('.dot')
+          .attr('cx', function(d){
+            if (isNaN(d.value)){
+              return
+            } else {
+              return xScale(parseTime(d.date)) }
+            })
+          .attr('cy', function(d){
+            if (isNaN(d.value)){
+              return
+            } else {
+             return y(d.value) }
+          })
+  //lil
+
+      lilChartDivWidth = parseInt(d3.select('#median-credit-and-race-chart').style('width'))
+      lilChartDivHeight = lilChartDivWidth * lilChartAspectRatio
+      lilChartWidth = lilChartDivWidth - lilChartMargin.left - lilChartMargin.right
+      lilChartHeight = lilChartDivHeight - lilChartMargin.top - lilChartMargin.bottom
+
+     d3.select('#median-credit-and-race-chart > svg')
+      .attr('width', lilChartWidth + lilChartMargin.left + lilChartMargin.right)
+      .attr('height', lilChartHeight + lilChartMargin.top + lilChartMargin.bottom)
+
+      xLilChart.range([0, lilChartWidth])
+      yLilChart.range([lilChartHeight, 0])
+
+      lilChartSvg.select('.x-axis')
+        .attr('transform', 'translate(0,' + lilChartHeight + ')')
+        .call(xAxisLilChart);
+
+      yAxisLilChart.tickSize(-lilChartDivWidth )
+      lilChartSvg.select('.grid')
+          .call(yAxisLilChart);
+
+      lilChartSvg.selectAll('.line')
+        .attr('d', function(d){ return lilChartLine(d.values) })
+
+      lilChartSvg.selectAll('.top-dot')
+        .attr('cx', function(d){ return xLilChart(parseTime(d.date)) })
+        .attr('cy', function(d){ return yLilChart(d.value) })
+
+      $('#line-chart-container').css('margin-top', $('#map-header').outerHeight() + 10)
+      $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
 
     }
-
-//line
-
-    lineChartDivHeight = lineChartDivWidth * lineChartRatio
-    lineChartWidth = lineChartDivWidth - lineMargin.left - lineMargin.right
-    lineChartHeight = lineChartDivHeight - lineMargin.top - lineMargin.bottom
-
-    d3.select('.state-lines > svg')
-      .attr('width', lineChartWidth + lineMargin.left + lineMargin.right)
-      .attr('height', lineChartHeight + lineMargin.top + lineMargin.bottom);
-
-    xScale.range([0, lineChartWidth])
-    y.range([lineChartHeight, 0])
-
-    lineChartSvg.selectAll('.x-axis')
-        .attr('transform', 'translate(0,' + lineChartHeight + ')')
-        .call(xAxis);
-
-    lineChartSvg.selectAll('.grid')
-        .call(yAxis);
-
-    lineChartSvg.selectAll('.data-line')
-      .attr('d', function(d){ return line(d.values)  })
-
-    lineChartSvg.selectAll('.dot')
-      .transition()
-        .attr('cx', function(d){
-          if (isNaN(d.value)){
-            return
-          } else {
-            return xScale(parseTime(d.date)) }
-          })
-        .attr('cy', function(d){
-          if (isNaN(d.value)){
-            return
-          } else {
-           return y(d.value) }
-        })
-//lil
-
-    lilChartDivWidth = parseInt(d3.select('#median-credit-and-race-chart').style('width'))
-    lilChartDivHeight = lilChartDivWidth * lilChartAspectRatio
-    lilChartWidth = lilChartDivWidth - lilChartMargin.left - lilChartMargin.right
-    lilChartHeight = lilChartDivHeight - lilChartMargin.top - lilChartMargin.bottom
-
-   d3.select('#median-credit-and-race-chart > svg')
-    .attr('width', lilChartWidth + lilChartMargin.left + lilChartMargin.right)
-    .attr('height', lilChartHeight + lilChartMargin.top + lilChartMargin.bottom)
-
-    xLilChart.range([0, lilChartWidth])
-    yLilChart.range([lilChartHeight, 0])
-
-    lilChartSvg.select('.x-axis')
-      .attr('transform', 'translate(0,' + lilChartHeight + ')')
-      .call(xAxisLilChart);
-
-    lilChartSvg.select('.grid')
-        .call(yAxisLilChart);
-
-    lilChartSvg.selectAll('.line')
-      .attr('d', function(d){ return lilChartLine(d.values) })
-
-    lilChartSvg.selectAll('.top-dot')
-      .transition()
-      .attr('cx', function(d){ return xLilChart(parseTime(d.date)) })
-      .attr('cy', function(d){ return yLilChart(d.value) })
-
-    $('#line-chart-container').css('margin-top', $('#map-header').outerHeight() + 10)
-    $('ul.select2-selection__rendered > li:nth-child(2)').css('left', tagScootch)
-
   }
-}
 }
 
