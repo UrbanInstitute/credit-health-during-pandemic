@@ -1360,7 +1360,21 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       } else {
         text = formatScore(thisMonth[j].value)
       }
-      template.select('.' + thisMonth[j].key).text(text)
+      var key
+      if (GEOG_LEVEL === 'county'){
+        var keyTranslation = {
+          'ct-all': 'ct-all',
+          'ct-coc': 'coc',
+          'ct-whi': 'whi',
+          'us-all': 'us-all',
+          'st-all': 'all'
+        }
+        key = keyTranslation[thisMonth[j].key]
+      } else {
+        key = thisMonth[j].key
+      }
+
+      template.select('.' + key).text(text)
     }
         //fills out labels for specific places
     if (GEOG_LEVEL === 'state'){
@@ -1368,14 +1382,14 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       template.select('.cat.st').text(stateName)
       template.select('.name-coc').text(stateName + ' communities of color')
       template.select('.name-whi').text(stateName + ' majority white communities')
-      template.selectAll('.cat.ct, .val.ct').style('display', 'none')
+      template.selectAll('.cat.ct, .val.ct, .val.ct-all').style('display', 'none')
     } else if (GEOG_LEVEL === 'county'){
       var stateName = stateNameLookup[SELECTED_STATE],
       countyName = countyMap.get(SELECTED_COUNTY).county
       template.select('.cat.st').text(stateName)
       template.select('.name-coc').text(countyName + ' communities of color')
       template.select('.name-whi').text(countyName + ' majority white communities')
-      template.selectAll('.cat.ct, .val.ct').style('display', 'table-cell')
+      template.selectAll('.cat.ct, .val.ct, .val.ct-all').style('display', 'table-cell')
       template.select('.cat.ct').text(countyName)
     }
 
@@ -1774,6 +1788,11 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         mapWidth = parseFloat(d3.select('#map-container').style('width'));
         mapWidth = mapWidth - margin.left - margin.right;
         mapHeight = mapWidth * mapRatio;
+
+        //the line chart's width is based on this container for large screens but the inner .state-lines container on
+        //small screens to allow the table beneath to be full width
+        lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')) - mobileShrinkAmt
+
         //some examples:
         // https://observablehq.com/@rdmurphy/responsive-maps-based-on-the-bounds-of-projected-geographi
         // http://bl.ocks.org/chriscanipe/071984bcf482971a94900a01fdb988fa
@@ -1784,20 +1803,15 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           .style('width', mapWidth + 'px')
           .style('height', mapHeight + 'px');
 
-          if (GEOG_LEVEL === 'nation'){
+        if (GEOG_LEVEL === 'nation'){
             projection.fitExtent([[0,0],[mapWidth,mapHeight]], featureCollection)
 
                      // resize the map
             usMap.selectAll('.counties').attr('d', path);
             usMap.selectAll('.state-outlines').attr('d', path);
 
-          //the line chart's width is based on this container for large screens but the inner .state-lines container on
-          //small screens to allow the table beneath to be full width
-          lineChartDivWidth = parseFloat(d3.select('#line-chart-container').style('width')) - mobileShrinkAmt
-
-
           // $('.mobile-chart-tooltip').css('display', 'none')
-          } else {
+        } else {
             var d = topojson.feature(us, us.objects.states).features.filter(function(s){ return s.id == nameFips[SELECTED_STATE]} )[0]
 
             //possible alternate way to go: https://bl.ocks.org/veltman/77679636739ea2fc6f0be1b4473cf03a
@@ -1811,13 +1825,13 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
             projection.fitSize([mapWidth, mapHeight], centered || d);
 
-          }
+        }
 
         var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard')
 
         template.style('display', 'none')
 
-      } else {
+      } else { //MOBILE
         makeMobileMenu()
 
         var template = GEOG_LEVEL === 'nation' ? d3.select('#mobile-nation-scoreboard') : d3.select('#mobile-state-county-scoreboard'),
