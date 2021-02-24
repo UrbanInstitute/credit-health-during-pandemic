@@ -812,6 +812,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
     })
     .on('mouseout', function(d){
+debugger
       if (GEOG_LEVEL === 'nation'){
         var mousedState = fipsNames[d.id.substring(0,2)],
         stateClass = mousedState.toLowerCase(),

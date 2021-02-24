@@ -169,7 +169,12 @@ ul {
     }
 }
 
-
+:focus {
+    outline: -webkit-focus-ring-color auto 1px;
+    outline-color: $copy-black;
+    outline-style: auto;
+    outline-width: 1px;
+}
 
 .button {
   background-color: $cyan;
@@ -1057,6 +1062,10 @@ ul#line-legend {
     margin: 30px 0;
   }
 
+  h1 {
+    font-size: 36px;
+  }
+
   h3#measure-menu-title {
     font-size: 16px;
     font-weight: 400;
@@ -1067,6 +1076,10 @@ ul#line-legend {
   hr {
     display: block;
     margin-bottom: 40px;
+  }
+
+  :focus {
+    outline: none;
   }
 
   .button {
