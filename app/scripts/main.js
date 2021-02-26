@@ -284,6 +284,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
         if ( GEOG_LEVEL === 'nation' ){
           usLineChart();
+
         } else if ( GEOG_LEVEL === 'state' ){
           stateLineChart();
           //be confident in this global at this time bc the measures don't do anything to geography
@@ -691,6 +692,9 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       $('#readout > li.nation > span.pct').text(usScore)
     }
 
+    var usScore = usData[dataMonths.indexOf(SELECTED_MONTH)][SELECTED_CAT]
+    $('#readout > li.nation > span.pct').text(formatScore(usScore))
+
     $('.title-measure-name').text(capFirstLetter(shortMeasureName))
     $('.map-title-date').text(monthYear)
     $('.line-title-name').text(placeName)
@@ -779,7 +783,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
           $('#readout > li.state').addClass('mouse-mate')
           $('#readout > li.state > span.place').text(stateNameLookup[mousedState])
-          $('#readout > li.state > span.pct').text(formatScore(data[data.length - 1][SELECTED_CAT]) )
+          $('#readout > li.state > span.pct').text(formatScore(data[dataMonths.indexOf(SELECTED_MONTH)][SELECTED_CAT]) )
         } else {
 
           if (GEOG_LEVEL === 'state'){
@@ -812,7 +816,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
     })
     .on('mouseout', function(d){
-debugger
+
       if (GEOG_LEVEL === 'nation'){
         var mousedState = fipsNames[d.id.substring(0,2)],
         stateClass = mousedState.toLowerCase(),
