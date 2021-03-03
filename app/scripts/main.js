@@ -671,7 +671,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         return d.place === SELECTED_STATE
       })[dataMonths.indexOf(SELECTED_MONTH)][SELECTED_CAT]
 
-      var countyLabel = SELECTED_STATE === 'LA' ? ' Parish, ' : ' County, '
+      var countyLabel = SELECTED_STATE === 'LA' ? ' Parish, ' : ' County '
 
       // if (SELECTED_COUNTY === '02158' || SELECTED_COUNTY === '02198'){
       //   countyLabel = ' Census Area'
