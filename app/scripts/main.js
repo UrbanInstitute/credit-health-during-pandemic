@@ -659,7 +659,6 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
     } else if ( GEOG_LEVEL === 'county' ){
       countyName = countyMap.get(SELECTED_COUNTY).county
-      placeName = countyName + ' County, ' + stateNameLookup[SELECTED_STATE]
       note = stateAndCountyNote
 
       countyScore = countiesData.filter(function(d){
@@ -672,9 +671,16 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         return d.place === SELECTED_STATE
       })[dataMonths.indexOf(SELECTED_MONTH)][SELECTED_CAT]
 
+      var countyLabel = SELECTED_STATE === 'LA' ? ' Parish, ' : ' County, '
+
+      // if (SELECTED_COUNTY === '02158' || SELECTED_COUNTY === '02198'){
+      //   countyLabel = ' Census Area'
+      // }
+      placeName = countyName + countyLabel + stateNameLookup[SELECTED_STATE]
+
       $('#readout > li.state > span.place').text(stateNameLookup[SELECTED_STATE])
       $('#readout > li.state > span.pct').text(formatScore(stateScore))
-      $('#readout > li.county > span.place').text(countyName + ' County')
+      $('#readout > li.county > span.place').text(countyName + countyLabel)
       $('#readout > li.county > span.pct').text(formatScore(countyScore))
 
     } else {
@@ -797,8 +803,11 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           if (mousedCountyId.substring(0,2) !== nameFips[SELECTED_STATE] ){
             return
           } else {
-            var countyLabel = SELECTED_STATE === 'LA' ? ' Parish' : ' County',
-            placeName = countyMap.get(mousedCountyId).county + countyLabel,
+            var countyLabel = SELECTED_STATE === 'LA' ? ' Parish' : ' County'
+            // if (mousedCountyId === '02158' || mousedCountyId === '02198'){
+            //   countyLabel = ' Census Area'
+            // }
+            var placeName = countyMap.get(mousedCountyId).county + countyLabel,
             score = countiesData.filter(function(d){
               return d.date === SELECTED_MONTH
             }).filter(function(d){
@@ -842,8 +851,13 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
           $('#readout > li.county > span.pct').text('')
 
         if (SELECTED_COUNTY !== '' && GEOG_LEVEL === 'county'){
-          var countyLabel = SELECTED_STATE === 'LA' ? ' Parish' : ' County',
-          placeName = countyMap.get(SELECTED_COUNTY).county + countyLabel,
+          var countyLabel = SELECTED_STATE === 'LA' ? ' Parish' : ' County'
+
+          // if (SELECTED_COUNTY === '02158' || SELECTED_COUNTY === '02198'){
+          //   countyLabel = 'Census Area'
+          // }
+
+          var placeName = countyMap.get(SELECTED_COUNTY).county + countyLabel,
           score = countiesData.filter(function(d){
             return d.date === SELECTED_MONTH
           }).filter(function(d){
