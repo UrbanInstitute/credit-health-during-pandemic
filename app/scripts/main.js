@@ -199,7 +199,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
   var countyList = countyLookup.map(function(d){ return d.id })
 
-   SELECTED_CAT = getQueryParam('cat', 'subp_credit_all', ['subp_credit_all', 'debt_in_collect_all', 'median_debt_in_collect_all', 'avg_cc_util_all', 'stud_loan_del_rate_all', 'cc_del_rate_all', 'auto_retail_loan_del_rate_all', 'mortgage_del_rate_all', 'afs_cred_all', 'del_afs_credit_rate_all', ' median_credit_score_all']),
+   SELECTED_CAT = getQueryParam('cat', 'subp_credit_all', ['subp_credit_all', 'debt_in_collect_all', 'median_debt_in_collect_all', 'avg_cc_util_all', 'stud_loan_del_rate_all', 'cc_del_rate_all', 'auto_retail_loan_del_rate_all', 'mortgage_del_rate_all', 'afs_cred_all', 'del_afs_credit_rate_all', 'median_credit_score_all']),
     SELECTED_MONTH = getQueryParam('month','2/1/2020',['2/1/2020','4/1/2020','6/1/2020','8/1/2020','10/1/2020']),
     SELECTED_COUNTY = getQueryParam('county', '', countyList),
     SELECTED_STATE = getQueryParam('state', 'US', stateAbbrevs),
