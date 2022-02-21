@@ -1,0 +1,92 @@
+label,value
+"Share with a Subprime Credit Score, All",subprime_pct_all
+"Share with a Subprime Credit Score, Communities of Color",subprime_pct_com_col
+"Share with a Subprime Credit Score, Majority Asian and Pacific Islander Communitie",subprime_pct_api
+"Share with a Subprime Credit Score, Majority Black Communities",subprime_pct_black
+"Share with a Subprime Credit Score, Majority Hispanic/Latinx Communities",subprime_pct_hisp
+"Share with a Subprime Credit Score, Majority Native American and Alaskan Native Co",subprime_pct_native
+"Share with a Subprime Credit Score, Majority White Communities",subprime_pct_white
+"Median Credit Score, All",credscorepos_p50_all
+"Median Credit Score, Communities of Color",credscorepos_p50_com_col
+"Median Credit Score, Majority American Indian and Alaskan Native Communities",credscorepos_p50_native
+"Median Credit Score, Majority Asian and Pacific Islander Communities",credscorepos_p50_com_api
+"Median Credit Score, Majority Black Communities",credscorepos_p50_com_black
+"Median Credit Score, Majority Hispanic/Latinx Communities",credscorepos_p50_com_hisp
+"Median Credit Score, Majority White Communities",credscorepos_p50_com_white
+"Share with Any Debt in Collections, All",totcollbin_pct_all
+"Share with Any Debt in Collections, Communities of Color",totcollbin_pct_com_col
+"Share with Any Debt in Collections, Majority American Indian and Alaskan Native ",totcollbin_pct_native
+"Share with Any Debt in Collections, Majority Asian and Pacific Islander Communit",totcollbin_pct_api
+"Share with Any Debt in Collections, Majority Black Communities",totcollbin_pct_black
+"Share with Any Debt in Collections, Majority Hispanic/Latinx Communities",totcollbin_pct_hisp
+"Share with Any Debt in Collections, Majority White Communities",totcollbin_pct_white
+"Median Debt in Collections, All",totcollpos_p50_all
+"Median Debt in Collections, Communities of Color",totcollpos_p50_com_col
+"Median Debt in Collections, Majority American Indian and Alaskan Native Communit",totcollpos_p50_native
+"Median Debt in Collections, Majority Asian and Pacific Islander Communities",totcollpos_p50_api
+"Median Debt in Collections, Majority Black Communities",totcollpos_p50_black
+"Median Debt in Collections, Majority Hispanic/Latinx Communities",totcollpos_p50_hisp
+"Median Debt in Collections, Majority White Communities",totcollpos_p50_white
+"Average Credit Card Utilization, All",credit_ratio_pct_all
+"Average Credit Card Utilization, Communities of Color",credit_ratio_pct_com_col
+"Average Credit Card Utilization, Majority American Indian and Alaskan Native Com",credit_ratio_pct_native
+"Average Credit Card Utilization, Majority Asian and Pacific Islander Communities",credit_ratio_pct_api
+"Average Credit Card Utilization, Majority Black Communities",credit_ratio_pct_black
+"Average Credit Card Utilization, Majority Hispanic/Latinx Communities",credit_ratio_pct_hisp
+"Average Credit Card Utilization, Majority White Communities",credit_ratio_pct_white
+"Student Loan Delinquency Rate (60+ days), All",stud_deliq_60pl_pct_all
+"Student Loan Delinquency Rate (60+ days), Communities of Color",stud_deliq_60pl_pct_com_col
+"Student Loan Delinquency Rate (60+ days), Majority American Indian and Alaskan Native",stud_deliq_60pl_pct_native
+"Student Loan Delinquency Rate (60+ days), Majority Asian and Pacific Islander Communi",stud_deliq_60pl_pct_api
+"Student Loan Delinquency Rate (60+ days), Majority Black Communities",stud_deliq_60pl_pct_black
+"Student Loan Delinquency Rate (60+ days), Majority Hispanic/Latinx Communities",stud_deliq_60pl_pct_hisp
+"Student Loan Delinquency Rate (60+ days), Majority White Communities",stud_deliq_60pl_pct_white
+"Credit Card Delinquency Rate (30+ days), All",card_deliq_30pl_pct_all
+"Credit Card Delinquency Rate (30+ days), Communities of Color",card_deliq_30pl_pct_com_col
+"Credit Card Delinquency Rate (30+ days), Majority American Indian and Alaskan Native",card_deliq_30pl_pct_native
+"Credit Card Delinquency Rate (30+ days), Majority Asian and Pacific Islander Communit",card_deliq_30pl_pct_api
+"Credit Card Delinquency Rate (30+ days), Majority Black Communities",card_deliq_30pl_pct_black
+"Credit Card Delinquency Rate (30+ days), Majority Hispanic/Latinx Communities",card_deliq_30pl_pct_hisp
+"Credit Card Delinquency Rate (30+ days), Majority White Communities",card_deliq_30pl_pct_white
+"Auto/Retail Loan Delinquency Rate (60+ days), All",autoret_deliq_60pl_pct_all
+"Auto/Retail Loan Delinquency Rate (60+ days), Communities of Color",autoret_deliq_60pl_pct_com_col
+"Auto/Retail Loan Delinquency Rate (60+ days), Majority American Indian and Alaskan Na",autoret_deliq_60pl_pct_native
+"Auto/Retail Loan Delinquency Rate (60+ days), Majority Asian and Pacific Islander Com",autoret_deliq_60pl_pct_api
+"Auto/Retail Loan Delinquency Rate (60+ days), Majority Black Communities",autoret_deliq_60pl_pct_black
+"Auto/Retail Loan Delinquency Rate (60+ days), Majority Hispanic/Latinx Communities",autoret_deliq_60pl_pct_hisp
+"Auto/Retail Loan Delinquency Rate (60+ days), Majority White Communities",autoret_deliq_60pl_pct_white
+"Mortgage Delinquency Rate (30+ days), All",mortgage_deliq_30pl_pct_all
+"Mortgage Delinquency Rate (30+ days), Communities of Color",mortgage_deliq_30pl_pct_com_col
+"Mortgage Delinquency Rate (30+ days), Majority American Indian and Alaskan Native Com",mortgage_deliq_30pl_pct_native
+"Mortgage Delinquency Rate (30+ days), Majority Asian and Pacific Islander Communities",mortgage_deliq_30pl_pct_api
+"Mortgage Delinquency Rate (30+ days), Majority Black Communities",mortgage_deliq_30pl_pct_black
+"Mortgage Delinquency Rate (30+ days), Majority Hispanic/Latinx Communities",mortgage_deliq_30pl_pct_hisp
+"Mortgage Delinquency Rate (30+ days), Majority White Communities",mortgage_deliq_30pl_pct_white
+"Share with an AFS Loan, All",afs_use_bin_pct_all
+"Share with an AFS Loan, Communities of Color",afs_use_bin_pct_com_col
+"Share with an AFS Loan, Majority Aaian and Pacific Islander Communities",afs_use_bin_pct_api
+"Share with an AFS Loan, Majority American Indian and Alaskan Native Communities",afs_use_bin_pct_native
+"Share with an AFS Loan, Majority Black Communities",afs_use_bin_pct_black
+"Share with an AFS Loan, Majority Hispanic/Latinx Communities",afs_use_bin_pct_hisp
+"Share with an AFS Loan, Majority White Communities",afs_use_bin_pct_white
+"AFS Loan Delinquency Rate (30+ days), All",afs_deliquency_bin_pct_all
+"AFS Loan Delinquency Rate (30+ days), Communities of Color",afs_deliquency_bin_pct_com_col
+"AFS Loan Delinquency Rate (30+ days), Majority American Indian and Alaskan Native Communities",afs_deliquency_bin_pct_native
+"AFS Loan Delinquency Rate (30+ days), Majority Asian and Pacific Islander Communities",afs_deliquency_bin_pct_api
+"AFS Loan Delinquency Rate (30+ days), Majority Black Communities",afs_deliquency_bin_pct_black
+"AFS Loan Delinquency Rate (30+ days), Majority Hispanic/Latinx Communities",afs_deliquency_bin_pct_hisp
+"AFS Loan Delinquency Rate (30+ days), Majority White Communities",afs_deliquency_bin_pct_white
+"Median Medical Debt in Collections, All",medcollpos_p50_all
+"Median Medical Debt in Collections, Communities of Color",medcollpos_p50_com_col
+"Median Medical Debt in Collections, Majority Aaian and Pacific Islander Communities",medcollpos_p50_com_api
+"Median Medical Debt in Collections, Majority American Indian and Alaskan Native Communities",medcollpos_p50_native
+"Median Medical Debt in Collections, Majority Black Communities",medcollpos_p50_black
+"Median Medical Debt in Collections, Majority Hispanic/Latinx Communities",medcollpos_p50_hisp
+"Median Medical Debt in Collections, Majority White Communities",medcollpos_p50_white
+"Share with Medical Debt in Collections, All",medcollbin_pct_all
+"Share with Medical Debt in Collections, Communities of Color",medcollbin_pct_com_col
+"Share with Medical Debt in Collections, Majority Aaian and Pacific Islander Communities",medcollbin_pct_api
+"Share with Medical Debt in Collections, Majority American Indian and Alaskan Native Communities",medcollbin_pct_native
+"Share with Medical Debt in Collections, Majority Black Communities",medcollbin_pct_black
+"Share with Medical Debt in Collections, Majority Hispanic/Latinx Communities",medcollbin_pct_hisp
+"Share with Medical Debt in Collections, Majority White Communities",medcollbin_pct_white
