@@ -260,6 +260,9 @@ footer p {
     font-size: 20px;
     font-weight: 400;
 }
+footer p:first-of-type {
+  margin-bottom: 10px;
+}
 .credits {
     font-family: Lato, sans-serif;
     font-style: italic;
@@ -286,7 +289,7 @@ footer p {
     display: inline-block;
     font-size: 18px;
     font-weight: 700;
-    margin: 24px 0 0;
+    margin: 0;
 }
 .button.foot-button:hover {
     background-color: #1696d2;

@@ -1283,7 +1283,7 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
 
     var labels = {
       'nation': {
-        'all': 'All communities',
+        'all': 'All Communities',
         'white': 'White',
         'black': 'Black', //cyan
         'hisp': 'Hispanic', //magenta
