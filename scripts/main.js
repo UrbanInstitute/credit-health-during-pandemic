@@ -42,6 +42,7 @@ function formatScore(num){
   } else if (SELECTED_CAT === 'totcollpos_p50_all' || SELECTED_CAT === 'medcollpos_p50_all'){
     return d3.format('$,')(num)
   } else {
+    num = Math.round(num * 10) / 10
     return d3.format('.1f')(num) + '%'
   }
 }
@@ -107,7 +108,8 @@ var yAxis = d3.axisLeft(y)
     } else if (SELECTED_CAT === 'totcollpos_p50_all' || SELECTED_CAT === 'medcollpos_p50_all'){
       return d3.format('$,')(d)
     } else {
-      return d3.format('.1f')(d) + '%'
+      num = Math.round(d * 10) / 10
+      return d3.format('.1f')(num) + '%'
     }
   })
 
@@ -694,6 +696,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
       note = usNote
     }
 
+
+
     $('#readout > li.nation > span.pct').text(formatScore(usScore))
     var monthYear = d3.timeFormat('%B %Y')(parseTime(SELECTED_MONTH))
 
@@ -905,7 +909,8 @@ function dataReady(error, countiesData, statesData, usData, dict, countyLookup, 
         } else if (SELECTED_CAT === 'totcollpos_p50_all' || SELECTED_CAT === 'medcollpos_p50_all'){
           return d3.format('$,')(d)
         } else {
-          return d3.format('.1f')(d) + '%';
+          num = Math.round(d * 10) / 10
+          return d3.format('.1f')(num) + '%';
         }
       })
       .style('border-left', function(d){ return '20px solid' + clusterScale(d) })
