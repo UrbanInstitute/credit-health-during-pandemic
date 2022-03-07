@@ -1,4 +1,4 @@
-// Search for 'UPDATE this' to find what elements should be changed with each new data update.
+// Search for 'UPDATE this' to find what elements should be tweaked with each new data update.
 
 // IE
 if (window.NodeList && !NodeList.prototype.forEach) {
