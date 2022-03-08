@@ -26,3 +26,6 @@ You can replicate that folder structure and create an R project –or use the [h
 
 ### What if an update includes new metrics
 That will require to update `dict.csv`, hosted in the `data` folder. Basically, the file matches the names of variables in the datasets with the names used for each metric in the dropdown menu.
+
+### Hosting the staging version
+For clarity and order, host the staging code inside the **features/tpm/credit-health-updates** folder. There, create a new folder **YEAR/MONTH-update** and clone the repo.
